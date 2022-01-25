@@ -86,7 +86,30 @@ class open_digraph: # for open directed graph
         return self.nodes
 
     def get_nodes(self):
-        return [node for node in nodes]
+        return list(self.nodes.values())
+    
+    def get_node_ids(self):
+        return list(self.nodes.keys())
+    
+    def get_node_by_id(self, id):
+        if id in self.get_node_ids() :
+            return self.nodes[id]
+        return f'cet id n existe pas '
+    
+    def get_nodes_by_ids(self, ids):
+        return[self.get_node_by_id(id) for id in ids]
+    
+    def set_input_ids(self, inputs):
+        self.inputs=inputs
+        
+    def set_output_ids(self, outputs):
+        self.outputs=outputs
+        
+    def add_input_id(self, id):
+        self.inputs.append(id)
+        
+    def add_output_id(self, id):
+        self.outputs.append(id)
 
 
 

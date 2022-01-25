@@ -8,7 +8,13 @@ print(node(3,"hamid",[3],[3]).copy())
 print("hello world")
 print(graph.get_id_node_map())
 print(graph.get_nodes())
-
+print(len(graph.get_nodes()))
+print(graph.get_node_ids())
+d={'a':1,'b':2, 'c':3}
+print(d.keys())
+print(d.values())
+print(d['b'])
+print(graph.get_nodes_by_ids([3]))
 
 
 
