@@ -28,10 +28,10 @@ class node:
         return self.label
     
     def get_children_ids(self):
-        return self.children
+        return self.children.keys()
     
     def get_parent_ids(self):
-        return self.parents
+        return self.parents.keys()
 
     def set_id(self, id):
         self.id=id
@@ -45,7 +45,7 @@ class node:
     def set_children_ids(self, children):
         self.children=children
         
-
+    
 
 
 
@@ -110,8 +110,38 @@ class open_digraph: # for open directed graph
         
     def add_output_id(self, id):
         self.outputs.append(id)
+        
+    def new_id (self):
+        l=self.get_node_ids()+ self.get_input_ids() +self.get_output_ids()
+        m=l[0]
+        while (m in l):
+            m=m+1
+        return m
+    
+    def add_edge(self, src, tgt):
+        src_node=self.get_node_by_id(src)
+        tgt_node=self.get_node_by_id(tgt)
+        if tgt in src_node.parents.keys():
+            src_node.parents[tgt]=src_node.parents[tgt]+1
+        else :
+            src_node.parents[tgt]=1
+            
+        if src in tgt_node.children.keys():
+            tgt_node.children[src]=tgt_node.children[src]+1
+        else :
+            tgt_node.children[src]=1
+        
+    def add_node(self, label="", parents={},children={}):
+        new_node=node(self.new_id(), label, {}, {})
+        self.nodes[new_node.get_id()]=new_node
+        for i in parents.keys() :
+            for j in range(parents[i]):
+                self.add_edge(new_node.get_id(), i)
+            
+        for i in children.keys() :
+            for j in range(children[i]):
+                self.add_edge(i, new_node.get_id())
 
-
-
+    
 
 
