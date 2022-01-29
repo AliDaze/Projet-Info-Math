@@ -44,6 +44,25 @@ class node:
 
     def set_children_ids(self, children):
         self.children=children
+
+    def remove_parent_once(self,idp):
+        if idp in self.parents:
+            self.parents[idp]=self.parents[idp]-1
+            if self.parents[idp] <= 0 :
+                self.parents.pop(idp) 
+
+    def remove_child_once(self,idc):
+        if idc in self.children:
+            self.children[idc]=self.children[idc]-1
+            if self.children[idc] <= 0 : 
+                self.children.pop(idc)
+
+    def remove_parent_id(self,idp):
+        self.parents.pop(idp)
+
+    def remove_child_id(self,idc):
+        self.children.pop(idc)
+
         
     
 
@@ -97,7 +116,7 @@ class open_digraph: # for open directed graph
         return f'cet id n existe pas '
     
     def get_nodes_by_ids(self, ids):
-        return[self.get_node_by_id(id) for id in ids]
+        return [self.get_node_by_id(id) for id in ids]
     
     def set_input_ids(self, inputs):
         self.inputs=inputs
@@ -131,7 +150,7 @@ class open_digraph: # for open directed graph
         else :
             tgt_node.children[src]=1
         
-    def add_node(self, label="", parents={},children={}):
+    def add_node(self, label=" ", parents={},children={}):
         new_node=node(self.new_id(), label, {}, {})
         self.nodes[new_node.get_id()]=new_node
         for i in parents.keys() :
@@ -142,6 +161,85 @@ class open_digraph: # for open directed graph
             for j in range(children[i]):
                 self.add_edge(i, new_node.get_id())
 
+    def remove_edge(self,src,tgt):
+        tgt_node = self.get_node_by_id(tgt)
+        src_node = self.get_node_by_id(src)
+        tgt_node.remove_parent_once(src)
+        src_node.remove_child_once(tgt)
+
+    def remove_parallel_edges(self,src,tgt):
+        tgt_node = self.get_node_by_id(tgt)
+        src_node = self.get_node_by_id(src)
+        tgt_node.remove_parent_id(src)
+        src_node.remove_child_id(tgt)
+
+    def input_output_in_graph(self):
+        ids=self.get_input_ids()+self.get_output_ids()
+        ids_node=self.get_node_ids()
+        for i in ids:
+            if not(i in ids_node) :
+                return False
+
+        return True
+
+    def inputs_child_one(self):
+        ids=self.get_input_ids()
+        nodes = self.get_nodes_by_ids(ids)
+        for node in nodes : 
+            if not(len(node.get_children_ids())==1) or not(len(node.get_parent_ids())==0):
+                return False
+            if not(node.children[node.get_children_ids()[0]]==1):
+                return False
+        return True
+
+    def outputs_parent_one(self):
+        ids=self.get_output_ids()
+        nodes = self.get_nodes_by_ids(ids)
+        for node in nodes :
+            if not(len(node.get_parent_ids())==1) or not(len(node.get_children_ids())==0):
+                return False
+            if not(node.children[node.get_parent_ids()[0]]==1):
+                return False
+        return True
+
+    def cle_nodes_exist(self):
+        return True
+
+    def same_multiple_nodes(self):
+        nodes=self.get_nodes()
+        for node in nodes :
+            node_id= node.get_id()
+            ids_parents_node = node.get_parent_ids()
+            ids_children_node = node.get_children_ids()
+            for i in ids_parents_node : 
+                if not(node.parents[i]==self.get_node_by_id(i).children[node_id]):
+                    return False
+            for j in ids_children_node : 
+                if not(node.children[j]==self.get_node_by_id(j).parents[node_id]):
+                    return False
+
+        return True
+
+
+    def well_formed(self):
+        return self.input_output_in_graph() and self.inputs_child_one() and self.outputs_parent_one() and self.cle_nodes_exist() and self.same_multiple_nodes()
+
+    def add_node_input(self,idc):
+        if not(idc in self.get_node_ids()):
+            raise Exception("Sorry, no id in the graph")
+        children_node={idc:1}
+        id_node=self.new_id()
+        self.add_node("",{},children_node)
+        self.set_inputs_ids(self.get_input_ids().append(id_node))
+
+    def add_node_output(self,idp):
+        if not(idp in self.get_node_ids()):
+            raise Exception("Sorry , no id in the graph")
+        parents_node={idp:1}
+        id_node=self.new_id()
+        self.add_node("",parents_node,{})
+        self.set_output_ids(self.get_output_ids().append(id_node))
+    
     
 
 
