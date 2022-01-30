@@ -13,55 +13,114 @@ class node:
         self.children = children
 
     def __str__(self):
+        '''
+        fonction d'affichage 
+        '''
         return f'id : {self.id} , label : {self.label} , parents : {self.parents} , children : {self.children}'
     def __repr__(self):
+        '''
+        fonction affichage inductive
+        '''
         return f'id : {self.id} , label : {self.label} , parents : {self.parents} , children : {self.children}'
 
     
     def copy(self) :
+        '''
+        return une copie du noeud
+        '''
         return node(self.id, self.label, self.parents, self.children)
     
     def get_id(self):
+
+        '''
+        return l'id du noeud
+        '''
         return self.id
     
     def get_label(self):
+
+        '''
+        return le label du noeud
+        '''
         return self.label
     
     def get_children_ids(self):
-        return self.children.keys()
+        '''
+        return les clés du dictionnaire des children autrement dit les ids des children
+        '''
+        return list(self.children.keys())
     
     def get_parent_ids(self):
-        return self.parents.keys()
+
+        '''
+        return les clés du dictionnaire des parents autrements dit les ids des parents
+        '''
+        return list(self.parents.keys())
 
     def set_id(self, id):
+        '''
+        prend en argument un id 
+        et
+        set/modifie l'id du noeud
+        '''
         self.id=id
 
     def set_label(self, label):
+        '''
+        prend en argument un label 
+        et
+        set/modifie l'id du noeuf
+        '''
         self.label=label
 
     def set_parent_ids(self, parents):
+        '''
+        prend en argument des ids de parents
+        et
+        set/modifie les parents
+        '''
         self.parents=parents
 
     def set_children_ids(self, children):
+        '''
+        prend en argument des ids de children
+        et
+        set/modifie les children
+        '''
         self.children=children
 
     def remove_parent_once(self,idp):
+        '''
+        prend un id de noeud et retire une arrete parent/enfant avec le noeud équivalent
+        '''
         if idp in self.parents:
             self.parents[idp]=self.parents[idp]-1
             if self.parents[idp] <= 0 :
                 self.parents.pop(idp) 
 
     def remove_child_once(self,idc):
+        '''
+        prend un id : idc
+        retire une arrete enfant/parent avec le noeud équivalent
+        '''
         if idc in self.children:
             self.children[idc]=self.children[idc]-1
             if self.children[idc] <= 0 : 
                 self.children.pop(idc)
 
     def remove_parent_id(self,idp):
+        '''
+        prend un id : idp
+        retire toutes les arretes du parent d'id idp
+        '''
         if idp in self.parents.keys():
             self.parents.pop(idp)
 
     def remove_child_id(self,idc):
+        '''
+        prend un id : idc
+        retire toutes les arretes du child d'id idc
+        '''
         if idc in self.children.keys():
             self.children.pop(idc)
 
@@ -82,9 +141,15 @@ class open_digraph: # for open directed graph
         self.nodes = {node.id:node for node in nodes} # self.nodes: <int,node> dict
 
     def __str__(self):
+        '''
+        fonction d'affichage 
+        '''
         return f'id : {self.inputs} ,outputs : {self.outputs} nodes : {self.nodes}'
 
     def __repr__(self):
+        '''
+        fonction d'affichage inductif
+        '''
         if isinstance(self, list):
             for i in self:
                 __repr__(i)
@@ -119,7 +184,7 @@ class open_digraph: # for open directed graph
     def get_node_by_id(self, id):
         if id in self.get_node_ids() :
             return self.nodes[id]
-        return f'cet id n existe pas '
+        raise Exception("Sorry, no id in the graph")
     
     def get_nodes_by_ids(self, ids):
         return [self.get_node_by_id(id) for id in ids]
@@ -191,12 +256,14 @@ class open_digraph: # for open directed graph
 
 
     def input_output_in_graph(self):
-        ids=self.get_input_ids()+self.get_output_ids()
         ids_node=self.get_node_ids()
-        for i in ids:
+
+        for i in self.inputs:
             if not(i in ids_node) :
                 return False
-
+        for j in self.outputs:
+            if not(j in ids_node):
+                return False
         return True
 
     def inputs_child_one(self):
@@ -215,7 +282,7 @@ class open_digraph: # for open directed graph
         for node in nodes :
             if not(len(node.get_parent_ids())==1) or not(len(node.get_children_ids())==0):
                 return False
-            if not(node.children[node.get_parent_ids()[0]]==1):
+            if not(node.parents[node.get_parent_ids()[0]]==1):
                 return False
         return True
 
@@ -232,9 +299,18 @@ class open_digraph: # for open directed graph
             ids_parents_node = node.get_parent_ids()
             ids_children_node = node.get_children_ids()
             for i in ids_parents_node : 
-                if not(node.parents[i]==self.get_node_by_id(i).children[node_id]):
+                if not((i in self.nodes)): 
+                    return False
+                if not((node_id in self.get_node_by_id(i).get_children_ids())) :
+                    return False
+                if  not(node.parents[i]==self.get_node_by_id(i).children[node_id]):
                     return False
             for j in ids_children_node : 
+                if not((j in self.nodes)):
+                    return False
+                
+                if not((node_id in self.get_node_by_id(j).get_parent_ids())) :
+                    return False
                 if not(node.children[j]==self.get_node_by_id(j).parents[node_id]):
                     return False
 
@@ -250,7 +326,7 @@ class open_digraph: # for open directed graph
         children_node={idc:1}
         id_node=self.new_id()
         self.add_node("",{},children_node)
-        self.set_inputs_ids(self.get_input_ids().append(id_node))
+        self.set_input_ids(self.get_input_ids()+[id_node])
 
     def add_node_output(self,idp):
         if not(idp in self.get_node_ids()):
@@ -258,7 +334,7 @@ class open_digraph: # for open directed graph
         parents_node={idp:1}
         id_node=self.new_id()
         self.add_node("",parents_node,{})
-        self.set_output_ids(self.get_output_ids().append(id_node))
+        self.set_output_ids(self.get_output_ids()+[id_node])
     
     
 
