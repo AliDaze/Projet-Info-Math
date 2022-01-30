@@ -58,10 +58,12 @@ class node:
                 self.children.pop(idc)
 
     def remove_parent_id(self,idp):
-        self.parents.pop(idp)
+        if idp in self.parents.keys():
+            self.parents.pop(idp)
 
     def remove_child_id(self,idc):
-        self.children.pop(idc)
+        if idc in self.children.keys():
+            self.children.pop(idc)
 
         
     
@@ -83,7 +85,11 @@ class open_digraph: # for open directed graph
         return f'id : {self.inputs} ,outputs : {self.outputs} nodes : {self.nodes}'
 
     def __repr__(self):
-        return f'id : {self.inputs} ,outputs : {self.outputs} nodes : {self.nodes}'
+        if isinstance(self, list):
+            for i in self:
+                __repr__(i)
+        else:
+            __str__(self)
 
 
 
@@ -173,6 +179,17 @@ class open_digraph: # for open directed graph
         tgt_node.remove_parent_id(src)
         src_node.remove_child_id(tgt)
 
+    def remove_node_by_id(self,*args):
+        for arg in args:
+            if arg in self.nodes.keys():
+                nodearg=self.get_node_by_id(arg)
+                for k in nodearg.get_parent_ids():
+                    self.remove_parallel_edges(k,arg)
+                for j in nodearg.get_children_ids():
+                    self.remove_parallel_edges(arg,j)
+                self.nodes.pop(arg)
+
+
     def input_output_in_graph(self):
         ids=self.get_input_ids()+self.get_output_ids()
         ids_node=self.get_node_ids()
@@ -203,6 +220,9 @@ class open_digraph: # for open directed graph
         return True
 
     def cle_nodes_exist(self):
+        for i in self.get_node_ids():
+            if self.nodes[i].get_id()!=i :
+                return False
         return True
 
     def same_multiple_nodes(self):
