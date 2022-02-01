@@ -1,3 +1,5 @@
+import random
+
 class node:
 
     def __init__(self, identity, label, parents, children):
@@ -202,12 +204,18 @@ class open_digraph: # for open directed graph
         self.outputs.append(id)
         
     def new_id (self):
+        '''
+        crée un nouvel id
+        '''
         l=self.get_node_ids()+ self.get_input_ids() +self.get_output_ids()
         m=l[0]
         while (m in l):
             m=m+1
         return m
     def clean(self):
+        '''
+        fonction qui supprime les inputs et outputs sans enfant/parent
+        '''
         for node in self.get_nodes():
             if(node.get_children_ids()==[] and node.get_parent_ids()==[] and ((node.get_id() in self.get_input_ids()) or (node.get_id() in self.get_output_ids()) )):
                 self.nodes.pop(node.get_id())
@@ -216,6 +224,9 @@ class open_digraph: # for open directed graph
                 if node.get_id() in self.get_output_ids():
                     self.outputs.remove(node.get_id())
     def add_edge(self, src, tgt):
+        '''
+        ajoute une arrete qui va de tgt a src
+        '''
         src_node=self.get_node_by_id(src)
         tgt_node=self.get_node_by_id(tgt)
         if tgt in src_node.parents.keys():
@@ -229,6 +240,9 @@ class open_digraph: # for open directed graph
             tgt_node.children[src]=1
         
     def add_node(self, label=" ", parents={},children={}):
+        '''
+        crée un node avec label et parents/enfants données
+        '''
         new_node=node(self.new_id(), label, {}, {})
         self.nodes[new_node.get_id()]=new_node
         for i in parents.keys() :
@@ -240,6 +254,9 @@ class open_digraph: # for open directed graph
                 self.add_edge(i, new_node.get_id())
 
     def remove_edge(self,src,tgt):
+        '''
+        enleve une arrete qui part de src a tgt
+        '''
         tgt_node = self.get_node_by_id(tgt)
         src_node = self.get_node_by_id(src)
         tgt_node.remove_parent_once(src)
@@ -250,6 +267,9 @@ class open_digraph: # for open directed graph
             self.outputs.remove(src)
 
     def remove_parallel_edges(self,src,tgt):
+        '''
+        retire toutes les arretes de src a tgt
+        '''
         tgt_node = self.get_node_by_id(tgt)
         src_node = self.get_node_by_id(src)
         tgt_node.remove_parent_id(src)
@@ -259,6 +279,9 @@ class open_digraph: # for open directed graph
         if src in self.get_output_ids():
             self.outputs.remove(src)
     def remove_node_by_id(self,*args):
+        '''
+        remove des nodes du graph
+        '''
         for arg in args:
             if arg in self.get_input_ids():
                 self.inputs.remove(arg)
@@ -275,6 +298,9 @@ class open_digraph: # for open directed graph
 
 
     def input_output_in_graph(self):
+        '''
+        verifie que les inputs et les outputs sont dans le graph
+        '''
         ids_node=self.get_node_ids()
 
         for i in self.inputs:
@@ -286,6 +312,9 @@ class open_digraph: # for open directed graph
         return True
 
     def inputs_child_one(self):
+        '''
+        verifie qu'il a un enfant a une multipilicité
+        '''
         ids=self.get_input_ids()
         nodes = self.get_nodes_by_ids(ids)
         for node in nodes : 
@@ -296,6 +325,9 @@ class open_digraph: # for open directed graph
         return True
 
     def outputs_parent_one(self):
+        '''
+        verifie qu'il a un parent a une multipilicité
+        '''
         ids=self.get_output_ids()
         nodes = self.get_nodes_by_ids(ids)
         for node in nodes :
@@ -306,12 +338,18 @@ class open_digraph: # for open directed graph
         return True
 
     def cle_nodes_exist(self):
+        '''
+        chaque node a son id comme clé dans nodes
+        '''
         for i in self.get_node_ids():
             if self.nodes[i].get_id()!=i :
                 return False
         return True
 
     def same_multiple_nodes(self):
+        '''
+        verifie que les multiplicités des arretes sont respectés d'un noeud a l'autre 
+        '''
         nodes=self.get_nodes()
         for node in nodes :
             node_id= node.get_id()
@@ -337,9 +375,15 @@ class open_digraph: # for open directed graph
 
 
     def is_well_formed(self):
+        '''
+        verifie que le graph est bien formé
+        '''
         return self.input_output_in_graph() and self.inputs_child_one() and self.outputs_parent_one() and self.cle_nodes_exist() and self.same_multiple_nodes()
 
     def add_node_input(self,idc):
+        '''
+        ajoute un input avec une arrete vers le noeud d'id idc
+        '''
         if idc in self.get_input_ids():
             self.inputs.remove(idc)
         if not(idc in self.get_node_ids()):
@@ -350,6 +394,9 @@ class open_digraph: # for open directed graph
         self.set_input_ids(self.get_input_ids()+[id_node])
 
     def add_node_output(self,idp):
+        '''
+        ajoute un output avec une arrete vers le noeud d'id idp
+        '''
         if idp in self.get_output_ids():
             self.outputs.remove(idp)
         if not(idp in self.get_node_ids()):
@@ -361,4 +408,35 @@ class open_digraph: # for open directed graph
     
     
 
+def random_rand_list(n,bound):
+    return [int(random.randrange(0,bound)) for i in range(n)]
+
+def random_int_matrix(n,bound,null_diag=True):
+    M=[random_rand_list(n,bound) for i in range(n)]
+    if null_diag:
+        for i in range(n):
+            M[i][i]=0
+    return M
+
+
+def random_symetric_int_matrix(n,bound,null_diag=True):
+    M=[[] for i in range(n)]
+    if not(null_diag):
+        for i in range(n):
+            for j in range(n-i):
+
+                k=int(random.randrange(0,bound)) 
+                l.append(k) 
+                M[j]=k 
+    else :
+        for i in range(n):
+            for j in range(n-i):
+                if(j==i):
+                    M[i][i]=0
+                else :
+                    k=int(random.randrange(0,bound)) 
+                    M[i][j]=k 
+                    M[j][i]=k 
+
+    return M          
 
