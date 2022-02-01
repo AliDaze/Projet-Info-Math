@@ -207,7 +207,14 @@ class open_digraph: # for open directed graph
         while (m in l):
             m=m+1
         return m
-    
+    def clean(self):
+        for node in self.get_nodes():
+            if(node.get_children_ids()==[] and node.get_parent_ids()==[] and ((node.get_id() in self.get_input_ids()) or (node.get_id() in self.get_output_ids()) )):
+                self.nodes.pop(node.get_id())
+                if node.get_id() in self.get_input_ids():
+                    self.inputs.remove(node.get_id())
+                if node.get_id() in self.get_output_ids():
+                    self.outputs.remove(node.get_id())
     def add_edge(self, src, tgt):
         src_node=self.get_node_by_id(src)
         tgt_node=self.get_node_by_id(tgt)
@@ -237,15 +244,26 @@ class open_digraph: # for open directed graph
         src_node = self.get_node_by_id(src)
         tgt_node.remove_parent_once(src)
         src_node.remove_child_once(tgt)
+        if tgt in self.get_input_ids():
+            self.inputs.remove(tgt)
+        if src in self.output_ids():
+            self.outputs.remove(src)
 
     def remove_parallel_edges(self,src,tgt):
         tgt_node = self.get_node_by_id(tgt)
         src_node = self.get_node_by_id(src)
         tgt_node.remove_parent_id(src)
         src_node.remove_child_id(tgt)
-
+        if tgt in self.get_input_ids():
+            self.inputs.remove(tgt)
+        if src in self.get_output_ids():
+            self.outputs.remove(src)
     def remove_node_by_id(self,*args):
         for arg in args:
+            if arg in self.get_input_ids():
+                self.inputs.remove(arg)
+            if arg in self.get_output_ids():
+                self.outputs.remove(arg)
             if arg in self.nodes.keys():
                 nodearg=self.get_node_by_id(arg)
                 for k in nodearg.get_parent_ids():
@@ -253,6 +271,7 @@ class open_digraph: # for open directed graph
                 for j in nodearg.get_children_ids():
                     self.remove_parallel_edges(arg,j)
                 self.nodes.pop(arg)
+        self.clean()
 
 
     def input_output_in_graph(self):
@@ -321,6 +340,8 @@ class open_digraph: # for open directed graph
         return self.input_output_in_graph() and self.inputs_child_one() and self.outputs_parent_one() and self.cle_nodes_exist() and self.same_multiple_nodes()
 
     def add_node_input(self,idc):
+        if idc in self.get_input_ids():
+            self.inputs.remove(idc)
         if not(idc in self.get_node_ids()):
             raise Exception("Sorry, no id in the graph")
         children_node={idc:1}
@@ -329,6 +350,8 @@ class open_digraph: # for open directed graph
         self.set_input_ids(self.get_input_ids()+[id_node])
 
     def add_node_output(self,idp):
+        if idp in self.get_output_ids():
+            self.outputs.remove(idp)
         if not(idp in self.get_node_ids()):
             raise Exception("Sorry , no id in the graph")
         parents_node={idp:1}

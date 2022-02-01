@@ -27,39 +27,50 @@ class NodeTest(unittest.TestCase):
 
 class GraphTest(unittest.TestCase):
     def setUp(self):
+        
         self.ad_node_2 = node(3,"hamid_1",{},{2:1})
         self.ad_node = node(2,"hamid_2",{3:1, 16:2},{16:1})
         self.ad_node_3 = node(16,"hamid_3",{2:1},{2:2, 19:1})
         self.ad_node_4 = node(19,"hamid_4",{16:1},{})
-        self.ad_node_5=node(4, "hamid_5", {2:1},{3:2})
-        self.ad_node_6=node(3,"hamid_1",{},{2:4})
-        self.ad_node_7=node(4, "hamid_5", {2:1},{3:2})
-        self.ad_node_8=node(4, "hamid_5", {2:1},{3:2})
-        self.graph_1 = open_digraph([3],[19],[self.ad_node,self.ad_node_2, self.ad_node_3, self.ad_node_4])
-        self.graph_2 = open_digraph([3],[19],[self.ad_node, self.ad_node_2, self.ad_node_3, self.ad_node_4, self.ad_node_5])
-        self.graph_3 = open_digraph([23],[19],[self.ad_node,self.ad_node_2, self.ad_node_3, self.ad_node_4])
-        self.graph_4 = open_digraph([3],[19, 190],[self.ad_node,self.ad_node_2, self.ad_node_3, self.ad_node_4])
-        self.graph_5 = open_digraph([3],[19],[self.ad_node,self.ad_node_6, self.ad_node_3, self.ad_node_4])
-    def test_well_formed (self):
+        self.ad_node_5 = node(21,"hamid_33",{16:1},{2:1})
+        self.ad_node_2_2 = node(3,"hamid_1",{},{2:1})
+        self.ad_node_2_1 = node(2,"hamid_2",{3:1, 16:2},{16:1})
+        self.ad_node_2_3 = node(16,"hamid_3",{2:1},{2:2, 19:1})
+        self.ad_node_2_4 = node(19,"hamid_4",{16:1},{})
+        self.ad_node_2_5 = node(21,"hamid_33",{16:1},{2:1})
+        self.ad_node_test=node(20,"hamid_test",{},{})
+        self.graph = open_digraph([3],[19],[self.ad_node,self.ad_node_2, self.ad_node_3, self.ad_node_4])
+        self.graph_3 = open_digraph([3,100],[19],[self.ad_node,self.ad_node_2, self.ad_node_3, self.ad_node_4])
+        self.graph_4=  open_digraph([3,20],[19],[self.ad_node,self.ad_node_2, self.ad_node_3, self.ad_node_4,self.ad_node_test])
+        self.graph_2 = open_digraph([3],[19],[self.ad_node_2_1,self.ad_node_2_2, self.ad_node_2_3, self.ad_node_2_4, self.ad_node_2_5])
+    def test_is_well_formed(self):
         '''graph respectant toutes les conditions'''
-        self.assertTrue(self.graph_1.is_well_formed())
-        '''graph dont l'input a un parent'''
+        self.assertTrue(self.graph.is_well_formed())
+        '''mauvaise arrete/multiplicité differente'''
         self.assertFalse(self.graph_2.is_well_formed())
         '''graph dont lequel un des inputs n'existe pas dans le graph '''
-        self.assertFalse(self.graph_3.is_well_formed())
-        '''graph dont lequel un des inputs a un enfante dont sa multiplicité > 1 '''
-        self.assertFalse(self.graph_5.is_well_formed())
-        '''graph dont lequel un des outputs n'existepas dans le graph '''
         self.assertFalse(self.graph_4.is_well_formed())
+        '''input sans child'''
+        self.assertFalse(self.graph_3.is_well_formed())
+       
         
-
     def test_ajooute_retire_noeud(self):
-        self.graph_1.add_node("hamid_ajoute",{19:3}, {3:1})
-        self.assertTrue(self.graph_1.is_well_formed())
-        self.graph_1.remove_node_by_id(2)
-        self.assertTrue(self.graph_1.is_well_formed())
-        
+        self.graph.add_node("hamid_ajoute",{16:3}, {2:1})
+        self.assertTrue(self.graph.is_well_formed())
+        self.graph.remove_node_by_id(2)
+        self.assertTrue(self.graph.is_well_formed())
+      
     def test_ajoute_entree_sortie(self):
+        self.graph.add_node_input(2)
+        self.assertTrue(self.graph.is_well_formed())
+        self.graph.add_node_output(19)
+        self.assertTrue(self.graph.is_well_formed())
+    def test_ajoute_retire_arrete(self):
+        self.graph.add_edge(2,16)
+        self.assertTrue(self.graph.is_well_formed())
+        self.graph.remove_parallel_edges(2,16)
+        self.assertTrue(self.graph.is_well_formed())
+
         
 
 if __name__ == '__main__': # the following code is called only when
