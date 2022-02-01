@@ -317,7 +317,7 @@ class open_digraph: # for open directed graph
         return True
 
 
-    def well_formed(self):
+    def is_well_formed(self):
         return self.input_output_in_graph() and self.inputs_child_one() and self.outputs_parent_one() and self.cle_nodes_exist() and self.same_multiple_nodes()
 
     def add_node_input(self,idc):
