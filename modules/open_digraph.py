@@ -420,23 +420,37 @@ def random_int_matrix(n,bound,null_diag=True):
 
 
 def random_symetric_int_matrix(n,bound,null_diag=True):
-    M=[[] for i in range(n)]
-    if not(null_diag):
-        for i in range(n):
-            for j in range(n-i):
+    
+    if null_diag :
+        M=random_int_matrix(n,bound)
+    else:
+        M=M=random_int_matrix(n,bound, false)
+    for i in range(n-1):
+        for j in range(i+1,n):
+            M[i][j]=M[j][i]
+    return M
+        
+            
+def random_oriented_int_matrix(n, bound,null_diag=True):
+    
+    M=random_int_matrix(n,bound, null_diag)
+    for i in range(n-1):
+        for j in range(i+1,n):
+            if (int(random.randrange(0,bound)) %2==0):
+                M[i][j]=0
+            else :
+                M[j][i]=0
+    return M
 
-                k=int(random.randrange(0,bound)) 
-                l.append(k) 
-                M[j]=k 
-    else :
-        for i in range(n):
-            for j in range(n-i):
-                if(j==i):
-                    M[i][i]=0
-                else :
-                    k=int(random.randrange(0,bound)) 
-                    M[i][j]=k 
-                    M[j][i]=k 
+def random_triangular_int_matrix(n, bound, null_diag=True) :
+    M=random_int_matrix(n,bound, null_diag)
+    for i in range(n):
+        for j in range(n):
+            if i>j :
+                M[i][j]=0
+    return M
 
-    return M          
-
+def graph_from_adjacency_matrix(M):
+    
+                
+    
