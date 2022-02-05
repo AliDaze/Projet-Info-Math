@@ -452,6 +452,7 @@ def random_triangular_int_matrix(n, bound, null_diag=True) :
             else :
                 M[i].append(int(random.randrange(0,bound)))
     return M
+
 def graph_from_adjacency_matrix(M,n):
     graph=open_digraph([],[],[node(i,"v"+str(i),{},{}) for i in range(n)])
     l=graph.get_node_ids()
