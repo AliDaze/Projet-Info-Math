@@ -443,14 +443,22 @@ def random_oriented_int_matrix(n, bound,null_diag=True):
     return M
 
 def random_triangular_int_matrix(n, bound, null_diag=True) :
-    M=random_int_matrix(n,bound, null_diag)
+    M=[]
+    for i in range(n):
+        M.append([])
+        for j in range(n) :
+            if (i>j) or (i==j and null_diag) :
+                M[i].append(0)
+            else :
+                M[i].append(int(random.randrange(0,bound)))
+    return M
+def graph_from_adjacency_matrix(M,n):
+    graph=open_digraph([],[],[node(i,"v"+str(i),{},{}) for i in range(n)])
+    l=graph.get_node_ids()
     for i in range(n):
         for j in range(n):
-            if i>j :
-                M[i][j]=0
-    return M
+            for k in range(M[i][j]):
+                graph.add_edge(l[j], l[i])
+    return graph
+    
 
-def graph_from_adjacency_matrix(M):
-    
-                
-    
