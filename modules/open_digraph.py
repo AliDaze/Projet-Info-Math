@@ -405,6 +405,26 @@ class open_digraph: # for open directed graph
         id_node=self.new_id()
         self.add_node("",parents_node,{})
         self.set_output_ids(self.get_output_ids()+[id_node])
+
+    @classmethod
+    def id_dict(self):
+        dict_id={}
+        nodes_ids=self.get_node_ids()
+        for i in range(len(nodes_ids)):
+            dict_id[node_id[i]]=i
+        return dict_id
+    @classmethod
+    def adjacency_matrix(self):
+        dict_id=self.id_dict()
+        l=len(dict_id.keys())
+        M=np.zeros((l,l))
+        for i in self.get_nodes():
+            id_i=i.get_id()
+            for j in i.get_children_ids():
+                M[i][j]=i.children[j]
+            for k in i.get_parent_ids():
+                M[i][k]=i.children[k]
+        return M
     
     
 
