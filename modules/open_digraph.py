@@ -1,4 +1,6 @@
 import random
+import sys
+import os
 
 class node:
 
@@ -406,6 +408,50 @@ class open_digraph: # for open directed graph
         self.add_node("",parents_node,{})
         self.set_output_ids(self.get_output_ids()+[id_node])
 
+    def save_as_dot_file(self, path, verbose=False):
+        exit_basename=path.__contains__(".dot")
+        print(exit_basename)
+        if(exit_basename):
+            #isExist = os.path.exists(path)
+            name = os.path.basename(path)
+            path.replace(name,"")
+        else:
+            name = "graph.dot"
+
+        print(path)
+        isExist = os.path.exists(path)
+        print(isExist)
+        if(isExist):
+            pathf=path+"/"+name
+            if(os.path.exists(pathf)):
+                os.remove(pathf)
+                fichier = open(pathf, "a")
+
+
+        else:
+            if(os.path.exists(name)):
+                os.remove(name)
+            fichier = open(name, "a")
+
+        fichier.write("\nBonjour monde")
+        fichier.close()
+
+    '''
+    @classmethod
+    def random(n, bound, inputs=0, outputs=0, form="free"):
+    
+    if form=="free":
+        return graph_from_adjacency_matrix(n)
+    elif form=="DAG":
+    ...
+    elif form=="oriented":
+    ...
+    elif form=="loop-free":
+    ...
+    elif form=="undirected":
+    ...
+    elif form=="loop-free undirected":
+    '''
     @classmethod
     def id_dict(self):
         dict_id={}
