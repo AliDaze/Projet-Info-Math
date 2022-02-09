@@ -53,6 +53,8 @@ class node:
         return les clés du dictionnaire des children autrement dit les ids des children
         '''
         return list(self.children.keys())
+    def get_children_ids(self):
+        return self.children
     
     def get_parent_ids(self):
 
@@ -425,15 +427,28 @@ class open_digraph: # for open directed graph
             pathf=path+"/"+name
             if(os.path.exists(pathf)):
                 os.remove(pathf)
-                fichier = open(pathf, "a")
+            fichier = open(pathf, "a")
 
 
         else:
             if(os.path.exists(name)):
                 os.remove(name)
             fichier = open(name, "a")
+        graph_name="graph_"+str(random.randint(0,10000))
+        fichier.write("digraph "+graph_name+" {\n")
+        if verbose:
+            for node in self.nodes:
+                fichier.write(str(node)+" [label=\" label: "+self.nodes[node].get_label()+ " \\nid: " + str(node)+ "\"];\n")
+        for node in self.get_nodes():
+            children=node.children
+            for child in children:
+                for multiplicite in range(children[child]):
+                    fichier.write(str(node.get_id()) + " -> " + str(child) + ";\n")
 
-        fichier.write("\nBonjour monde")
+
+        fichier.write("}\n")
+
+
         fichier.close()
 
     '''
