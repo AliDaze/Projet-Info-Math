@@ -412,17 +412,17 @@ class open_digraph: # for open directed graph
 
     def save_as_dot_file(self, path, verbose=False):
         exit_basename=path.__contains__(".dot")
-        print(exit_basename)
+        #print(exit_basename)
         if(exit_basename):
             #isExist = os.path.exists(path)
             name = os.path.basename(path)
-            path.replace(name,"")
+            path=path.replace(name,"")
         else:
             name = "graph.dot"
 
-        print(path)
+        #print(path)
         isExist = os.path.exists(path)
-        print(isExist)
+        #print(isExist)
         if(isExist):
             pathf=path+"/"+name
             if(os.path.exists(pathf)):
@@ -450,6 +450,36 @@ class open_digraph: # for open directed graph
 
 
         fichier.close()
+    
+    def from_dot_file(self, path) :
+        fichier = open(path, "r+") 
+        list_ids=[]
+        for ligne in fichier :
+            ligne.strip()
+            
+            if((ligne=="") or ("{" in ligne) or ("}" in ligne) or ("digraph" in ligne) or ("[label=" in ligne ) or not("->" in ligne)):
+                continue
+            
+            ligne=ligne.replace("\n","")
+            ligne=ligne.replace(" ","")
+            ligne=ligne.replace(";","")
+            ligne=ligne.replace("->"," ")
+            ligne_list=ligne.split()
+            for i in ligne_list:
+                list_ids.append(int(i))
+            
+            #print(ligne)
+        list_ids_remove_duplicates=list(set(list_ids))
+        G_new=open_digraph([],[],[node(id, "v"+str(id),{},{}) for id in list_ids_remove_duplicates])
+        for i in range(0,len(list_ids)-1,2):
+            G_new.add_edge(list_ids[i+1], list_ids[i])
+        
+     
+        fichier.close()
+        
+        return G_new
+            
+
 
     '''
     @classmethod
