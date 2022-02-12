@@ -1,6 +1,7 @@
 import random
 import sys
 import os
+import webbrowser
 
 class node:
 
@@ -479,6 +480,11 @@ class open_digraph: # for open directed graph
         
         return G_new
             
+    def display (self, verbose=False):
+        self.save_as_dot_file( os.getcwd(), verbose)
+        os.system('dot -Tpdf graph.dot -o graph.pdf')
+        path = os.getcwd()+'/graph.pdf'
+        webbrowser.open_new(r'file:/home/jovyan/Projet-Info-Math/graph.pdf')
 
 
     '''
