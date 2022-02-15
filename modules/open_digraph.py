@@ -451,7 +451,8 @@ class open_digraph: # for open directed graph
 
 
         fichier.close()
-    
+
+    @classmethod
     def from_dot_file(self, path) :
         fichier = open(path, "r+") 
         list_ids=[]
@@ -481,10 +482,11 @@ class open_digraph: # for open directed graph
         return G_new
             
     def display (self, verbose=False):
-        self.save_as_dot_file( os.getcwd(), verbose)
-        os.system('dot -Tpdf graph.dot -o graph.pdf')
-        path = os.getcwd()+'/graph.pdf'
-        webbrowser.open_new(r'file:/home/jovyan/Projet-Info-Math/graph.pdf')
+        num=str(random.randint(0,10000))
+        nom=os.getcwd()+"/graph"+num
+        self.save_as_dot_file( nom+".dot", verbose)
+        os.system('dot -Tpdf graph'+num+'.dot -o graph'+num+'.pdf')
+        webbrowser.open_new(nom+".pdf")
 
 
     '''

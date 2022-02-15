@@ -15,8 +15,10 @@ print("\n")'''
 [0, 0, 0, 0, 0] ]'''
 G=graph_from_adjacency_matrix(M,4)
 print(G)
-'''print(G.is_well_formed())
-G.save_as_dot_file("/home/jovyan/Projet-Info-Math",verbose=False);'''
+#print(G.is_well_formed())
 G.display(True)
+G.save_as_dot_file("/home/tp-home002/gkemich/Documents/Projet-Info-Math/mm.dot",verbose=False)
+G2=open_digraph.from_dot_file("/home/tp-home002/gkemich/Documents/Projet-Info-Math/mm.dot")
+G2.display(True)
 #print(g_new.is_well_formed())
 #print(g_new)
