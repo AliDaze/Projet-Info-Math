@@ -33,7 +33,7 @@ class node:
         '''
         return une copie du noeud
         '''
-        return node(self.id, self.label, self.parents, self.children)
+        return node(self.id, self.label, self.parents.copy(), self.children.copy())
     
     def get_id(self):
 
@@ -131,6 +131,14 @@ class node:
         if idc in self.children.keys():
             self.children.pop(idc)
 
+    def indegree(self):
+        return sum(self.parents.values())
+    
+    def outdegree(self):
+        return sum(self.children.values())
+    
+    def degree(self):
+        return self.indegree()+self.outdegree()
         
     
 
@@ -171,7 +179,9 @@ class open_digraph: # for open directed graph
 
     
     def copy(self) :
-        return node(self.inputs, self.outputs, self.nodes)
+        nodez=map(lambda x : x.copy() ,self.nodes.values())
+
+        return open_digraph(self.inputs.copy(), self.outputs.copy(), nodez)
 
     def get_input_ids(self):
         return self.inputs
@@ -488,6 +498,22 @@ class open_digraph: # for open directed graph
         os.system('dot -Tpdf graph'+num+'.dot -o graph'+num+'.pdf')
         webbrowser.open_new(nom+".pdf")
 
+    def is_cyclic(self):
+        gcopy = self.copy()
+        cyclic= True
+        while(cyclic):
+            retire=False
+            if gcopy.nodes = {} : 
+                cyclic=False
+                break
+            for i in gcopy.nodes.values():
+                if i.children={}:
+                    gcopy.remove_node_by_id(i.get_id())
+                    retire=True
+            if not(retire) : 
+                break
+        return cyclic 
+
 
     '''
     @classmethod
@@ -581,4 +607,15 @@ def graph_from_adjacency_matrix(M,n):
                 graph.add_edge(l[j], l[i])
     return graph
     
+
+
+class bool_circ(open_digraph):
+    
+    def __init__(self,g):
+        self.id = g.id
+        self.label = g.label
+        self.parents = g.parents
+        self.children = g.children
+    
+
 
