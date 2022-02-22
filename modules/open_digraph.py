@@ -503,16 +503,68 @@ class open_digraph: # for open directed graph
         cyclic= True
         while(cyclic):
             retire=False
-            if gcopy.nodes = {} : 
+            if gcopy.nodes == {} : 
                 cyclic=False
                 break
             for i in gcopy.nodes.values():
-                if i.children={}:
+                if i.children=={}:
                     gcopy.remove_node_by_id(i.get_id())
                     retire=True
             if not(retire) : 
                 break
         return cyclic 
+
+    def min_id(self):
+        return min(self.get_node_ids())
+
+    def max_id(self):
+        return max(self.get_node_ids())
+
+    def shift_indices(self,n):
+        for node in self.get_nodes():
+            old_id=node.get_id()
+            child={idc+n:node.children[idc] for idc in node.get_children_ids()}
+            parent={idc+n:node.parents[idc] for idc in node.get_parent_ids()}
+            node.set_parent_ids(parent)
+            node.set_children_ids(child)
+            node.set_id(node.get_id()+n)
+            self.nodes[node.get_id()]=node
+            del self.nodes[old_id]
+        inputs=[i+n for i in self.get_input_ids()]
+        output=[i+n for i in self.get_output_ids()]
+        self.set_output_ids(output)
+        self.set_input_ids(inputs)
+
+    def iparralel(self,g):
+        max_id_g=g.max_id()
+        min_id_g=g.max_id()
+        min_id_self=self.min_id()
+        max_id_self=self.max_id()
+        self.shift_indices(max(max_id_g,max_id_self)-min(min_id_g,min_id_self)+1)
+        self.set_output_ids(self.get_output_ids()+g.get_output_ids())
+        self.set_input_ids(self.get_input_ids()+g.get_input_ids())
+        self.nodes.update(g.nodes)
+    
+    def parralel(self,g):
+        new=open_digraph.origin()
+        new.iparralel(self)
+        new.iparralel(g)
+        return new
+
+    def icompose(self,g):
+        if(len(self.get_input_ids()) != len(g.get_output_ids())):
+            raise Exception("nombre d'entrées différent")
+        max_id_g=g.max_id()
+        min_id_g=g.max_id()
+        min_id_self=self.min_id()
+        max_id_self=self.max_id()
+        self.shift_indices(max(max_id_g,max_id_self)-min(min_id_g,min_id_self)+1)
+        list_self_inputs=self.get_input_ids()
+        list_g_outputs=g.get_output_ids()
+        
+        for i in range(len(list_self_inputs)):
+            self.add_edge(list_self_inputs[i],list_g_outputs[i])
+        self.set_input_ids(g.get_input_ids())
 
 
     '''
@@ -612,10 +664,20 @@ def graph_from_adjacency_matrix(M,n):
 class bool_circ(open_digraph):
     
     def __init__(self,g):
-        self.id = g.id
-        self.label = g.label
-        self.parents = g.parents
-        self.children = g.children
-    
 
+        self.inputs = g.inputs
+        self.outputs = g.outputs
+        self.nodes = g.nodes
+        if not(self.is_well_formed()):
+            raise Exception("n'est pas un circuit boolean")
+
+    def is_well_formed(self):
+        for node in nodes:
+            if node.label=="" and not(node.indegree()==1) : 
+                return False 
+            if (node.label=="&" or node.label=="|" or node.label=="^") and not(node.outdegree()==1):
+                return False
+            if (node.label=="~") and not(node.indegree()==1) and not(node.outdegree()==1):
+                return False
+            return not(self.is_cyclic())
 
