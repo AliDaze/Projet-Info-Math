@@ -3,9 +3,9 @@ import sys
 import os
 import webbrowser
 
-from open_digraph import *
-from open_diagraph_parralelcompose_mx import *
-from node import *
+from modules.open_digraph import *
+from modules.open_diagraph_parralelcompose_mx import *
+from modules.node import *
     
 def random_rand_list(n,bound):
     return [int(random.randrange(0,bound)) for i in range(n)]
@@ -52,14 +52,7 @@ def random_triangular_int_matrix(n, bound, null_diag=True) :
                 M[i].append(int(random.randrange(0,bound)))
     return M
 
-def graph_from_adjacency_matrix(M,n):
-    graph=open_digraph([],[],[node(i,"v"+str(i),{},{}) for i in range(n)])
-    l=graph.get_node_ids()
-    for i in range(n):
-        for j in range(n):
-            for k in range(M[i][j]):
-                graph.add_edge(l[j], l[i])
-    return graph 
+
 
 '''
 @classmethod

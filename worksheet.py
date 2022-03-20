@@ -13,7 +13,9 @@ print("\n")'''
 [0, 0, 0, 2, 0],
 [1, 0, 0, 0, 1],
 [0, 0, 0, 0, 0] ]'''
+M2=(random_triangular_int_matrix(4,10))
 G=graph_from_adjacency_matrix(M,4)
+G2=graph_from_adjacency_matrix(M2,4)
 print(G)
 G.shift_indices(10)
 print("\n \n")

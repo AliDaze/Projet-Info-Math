@@ -3,9 +3,9 @@ import sys
 import os
 import webbrowser
 
-from open_diagraph_matrix import *
-from open_diagraph_parralelcompose_mx import *
-from open_digraph import *
+from modules.open_diagraph_matrix import *
+from modules.open_diagraph_parralelcompose_mx import *
+from modules.open_digraph import *
 class node:
 
     def __init__(self, identity, label, parents, children):

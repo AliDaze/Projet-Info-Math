@@ -3,9 +3,9 @@ import sys
 import os
 import webbrowser
 
-from open_diagraph_matrix import *
-from open_diagraph_parralelcompose_mx import *
-from node import *
+from modules.open_diagraph_matrix import *
+from modules.open_diagraph_parralelcompose_mx import *
+from modules.node import *
 
 
 class open_digraph(open_diagraph_parralelcompose_mx): # for open directed graph
@@ -441,29 +441,17 @@ class open_digraph(open_diagraph_parralelcompose_mx): # for open directed graph
 
         return dist, prev
 
-    
-    
+ 
+
+
+def graph_from_adjacency_matrix(M,n):
+    graph=open_digraph([],[],[node(i,"v"+str(i),{},{}) for i in range(n)])
+    l=graph.get_node_ids()
+    for i in range(n):
+        for j in range(n):
+            for k in range(M[i][j]):
+                graph.add_edge(l[j], l[i])
+    return graph  
 
     
-
-
-class bool_circ(open_digraph):
-    
-    def __init__(self,g):
-
-        self.inputs = g.inputs
-        self.outputs = g.outputs
-        self.nodes = g.nodes
-        if not(self.is_well_formed()):
-            raise Exception("n'est pas un circuit boolean")
-
-    def is_well_formed(self):
-        for node in nodes:
-            if node.label=="" and not(node.indegree()==1) : 
-                return False 
-            if (node.label=="&" or node.label=="|" or node.label=="^") and not(node.outdegree()==1):
-                return False
-            if (node.label=="~") and not(node.indegree()==1) and not(node.outdegree()==1):
-                return False
-            return not(self.is_cyclic())
 

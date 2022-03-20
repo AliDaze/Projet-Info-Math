@@ -3,9 +3,9 @@ import sys
 import os
 import webbrowser
 
-from open_diagraph_matrix import *
-from open_digraph import *
-from node import *
+from modules.open_diagraph_matrix import *
+from modules.open_digraph import *
+from modules.node import *
 
 class open_diagraph_parralelcompose_mx:
 	
