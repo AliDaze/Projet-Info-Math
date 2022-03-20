@@ -3,12 +3,146 @@ import sys
 import os
 import webbrowser
 
-from modules.open_diagraph_matrix import *
-from modules.open_diagraph_parralelcompose_mx import *
-from modules.node import *
 
+class node:
 
-class open_digraph(open_diagraph_parralelcompose_mx): # for open directed graph
+    def __init__(self, identity, label, parents, children):
+        '''
+        identity: int; its unique id in the graph
+        label: string;
+        parents: int->int dict; maps a parent node's id to its multiplicity
+        children: int->int dict; maps a child node's id to its multiplicity
+        '''
+        self.id = identity
+        self.label = label
+        self.parents = parents
+        self.children = children
+
+    def __str__(self):
+        '''
+        fonction d'affichage 
+        '''
+        return f'id : {self.id} , label : {self.label} , parents : {self.parents} , children : {self.children}'
+    def __repr__(self):
+        '''
+        fonction affichage inductive
+        '''
+        return f'id : {self.id} , label : {self.label} , parents : {self.parents} , children : {self.children}'
+
+    
+    def copy(self) :
+        '''
+        return une copie du noeud
+        '''
+        return node(self.id, self.label, self.parents.copy(), self.children.copy())
+    
+    def get_id(self):
+
+        '''
+        return l'id du noeud
+        '''
+        return self.id
+    
+    def get_label(self):
+
+        '''
+        return le label du noeud
+        '''
+        return self.label
+    
+    def get_children_ids(self):
+        '''
+        return les clés du dictionnaire des children autrement dit les ids des children
+        '''
+        return list(self.children.keys())
+    def get_children_ids(self):
+        return self.children
+    
+    def get_parent_ids(self):
+
+        '''
+        return les clés du dictionnaire des parents autrements dit les ids des parents
+        '''
+        return list(self.parents.keys())
+
+    def set_id(self, id):
+        '''
+        prend en argument un id 
+        et
+        set/modifie l'id du noeud
+        '''
+        self.id=id
+
+    def set_label(self, label):
+        '''
+        prend en argument un label 
+        et
+        set/modifie l'id du noeuf
+        '''
+        self.label=label
+
+    def set_parent_ids(self, parents):
+        '''
+        prend en argument des ids de parents
+        et
+        set/modifie les parents
+        '''
+        self.parents=parents
+
+    def set_children_ids(self, children):
+        '''
+        prend en argument des ids de children
+        et
+        set/modifie les children
+        '''
+        self.children=children
+
+    def remove_parent_once(self,idp):
+        '''
+        prend un id de noeud et retire une arrete parent/enfant avec le noeud équivalent
+        '''
+        if idp in self.parents:
+            self.parents[idp]=self.parents[idp]-1
+            if self.parents[idp] <= 0 :
+                self.parents.pop(idp) 
+
+    def remove_child_once(self,idc):
+        '''
+        prend un id : idc
+        retire une arrete enfant/parent avec le noeud équivalent
+        '''
+        if idc in self.children:
+            self.children[idc]=self.children[idc]-1
+            if self.children[idc] <= 0 : 
+                self.children.pop(idc)
+
+    def remove_parent_id(self,idp):
+        '''
+        prend un id : idp
+        retire toutes les arretes du parent d'id idp
+        '''
+        if idp in self.parents.keys():
+            self.parents.pop(idp)
+
+    def remove_child_id(self,idc):
+        '''
+        prend un id : idc
+        retire toutes les arretes du child d'id idc
+        '''
+        if idc in self.children.keys():
+            self.children.pop(idc)
+
+    def indegree(self):
+        return sum(self.parents.values())
+    
+    def outdegree(self):
+        return sum(self.children.values())
+    
+    def degree(self):
+        return self.indegree()+self.outdegree()
+        
+
+class open_digraph: # for open directed graph
     def __init__(self, inputs, outputs, nodes):
         '''
         inputs: int list; the ids of the input nodes
@@ -327,7 +461,7 @@ class open_digraph(open_diagraph_parralelcompose_mx): # for open directed graph
         fichier.close()
 
     @classmethod
-    def from_dot_file(self, path) :
+    def from_dot_file(cls, path) :
         fichier = open(path, "r+") 
         list_ids=[]
         for ligne in fichier :
@@ -398,6 +532,93 @@ class open_digraph(open_diagraph_parralelcompose_mx): # for open directed graph
         output=[i+n for i in self.get_output_ids()]
         self.set_output_ids(output)
         self.set_input_ids(inputs)
+
+    def iparralel(self,g):
+        max_id_g=g.max_id()
+        min_id_g=g.max_id()
+        min_id_self=self.min_id()
+        max_id_self=self.max_id()
+        self.shift_indices(max(max_id_g,max_id_self)-min(min_id_g,min_id_self)+1)
+        self.set_output_ids(self.get_output_ids()+g.get_output_ids())
+        self.set_input_ids(self.get_input_ids()+g.get_input_ids())
+        self.nodes.update(g.nodes)
+    
+    def parralel(self,g):
+        new=open_digraph.origin()
+        new.iparralel(self)
+        new.iparralel(g)
+        return new
+
+    def icompose(self,g):
+        if(len(self.get_input_ids()) != len(g.get_output_ids())):
+            raise Exception("nombre d'entrées différent")
+        max_id_g=g.max_id()
+        min_id_g=g.min_id()
+        min_id_self=self.min_id()
+        max_id_self=self.max_id()
+        self.shift_indices(max(max_id_g,max_id_self)-min(min_id_g,min_id_self)+1)
+        list_self_inputs=self.get_input_ids()
+        list_g_outputs=g.get_output_ids()
+        self.nodes.update(g.nodes)
+        
+        for i in range(len(list_self_inputs)):
+            self.add_edge(list_self_inputs[i],list_g_outputs[i])
+        self.set_input_ids(g.get_input_ids())
+
+
+    def compose(self,g):
+        new=self.copy()
+        newg=g.copy()
+        new.icompose(newg)
+
+        return new
+    def parcours_dict(self,dict,node,k,nodes_notseen):
+        if node in nodes_notseen: 
+            dict[node.get_id()]=k
+            nodes_notseen.difference([node])
+            children_ids=node.get_children_ids()
+            parents_ids=node.get_parent_ids()
+            for i in range(len(children_ids)):
+                self.parcours_dict(dict,self.get_node_by_id(i),k,nodes_notseen)
+            for j in range(len(parents_ids)):
+                self.parcours_dict(dict,self.get_node_by_id(j),k,nodes_notseen)
+
+    def connected_components(self):
+        dict={}
+        nodes_notseen=self.get_nodes()
+        k=0
+        while(nodes_notseen!=[]):
+            current_node=nodes_notseen[0]
+            self.parcours_dict(dict,current_node,k,nodes_notseen)
+            seen=[self.get_node_by_id(key) for key,v in dict.items() if v==k]
+            k=k+1
+            
+        return (k,dict)
+
+    def connnexe_compose(self):
+        k,v=self.connected_components()
+        list_g=[]
+        for i in range(k):
+            newg=open_digraph.origin()
+            seen={key:self.get_node_by_id(key) for key,value in v.items() if value==i}
+            newg.nodes.update(seen)
+            inputs_g=[value.id for key,value in seen.items() if  (((len(value.get_children_ids())==1) and (len(value.get_parent_ids())==0)) and (value.children[value.get_children_ids()[0]]==1))]
+            ouputs_g=[value.id for key,value in seen.items() if  (((len(value.get_parent_ids())==1) and (len(value.get_children_ids())==0)) and ((node.parents[node.get_parent_ids()[0]]==1)))]
+            newg.set_output_ids(outputs_g)
+            newg.set_input_ids(inputs_g)
+            list_g.append(newg)
+        return list_g
+
+    def iparralel_list(self,*args):
+        for i in args:
+            self.iparralel(i)
+
+    def parralel_list(self,*args):
+        new=open_digraph.origin()
+        new.iparralel(self)
+        for argk in args:
+            new.iparralel(argk)
+        return new
     
     @classmethod
     def id_dict(self):
@@ -442,7 +663,70 @@ class open_digraph(open_diagraph_parralelcompose_mx): # for open directed graph
         return dist, prev
 
  
+   
+def random_rand_list(n,bound):
+    return [int(random.randrange(0,bound)) for i in range(n)]
 
+def random_int_matrix(n,bound,null_diag=True):
+    M=[random_rand_list(n,bound) for i in range(n)]
+    if null_diag:
+        for i in range(n):
+            M[i][i]=0
+    return M
+
+
+def random_symetric_int_matrix(n,bound,null_diag=True):
+    
+    if null_diag :
+        M=random_int_matrix(n,bound)
+    else:
+        M=M=random_int_matrix(n,bound, false)
+    for i in range(n-1):
+        for j in range(i+1,n):
+            M[i][j]=M[j][i]
+    return M
+        
+            
+def random_oriented_int_matrix(n, bound,null_diag=True):
+    
+    M=random_int_matrix(n,bound, null_diag)
+    for i in range(n-1):
+        for j in range(i+1,n):
+            if (int(random.randrange(0,bound)) %2==0):
+                M[i][j]=0
+            else :
+                M[j][i]=0
+    return M
+
+def random_triangular_int_matrix(n, bound, null_diag=True) :
+    M=[]
+    for i in range(n):
+        M.append([])
+        for j in range(n) :
+            if (i>j) or (i==j and null_diag) :
+                M[i].append(0)
+            else :
+                M[i].append(int(random.randrange(0,bound)))
+    return M
+
+
+
+'''
+
+    def random(n, bound, inputs=0, outputs=0, form="free"):
+    
+    if form=="free":
+        return graph_from_adjacency_matrix(n)
+    elif form=="DAG":
+    ...
+    elif form=="oriented":
+    ...
+    elif form=="loop-free":
+    ...
+    elif form=="undirected":
+    ...
+    elif form=="loop-free undirected":
+'''
 
 def graph_from_adjacency_matrix(M,n):
     graph=open_digraph([],[],[node(i,"v"+str(i),{},{}) for i in range(n)])
@@ -453,5 +737,25 @@ def graph_from_adjacency_matrix(M,n):
                 graph.add_edge(l[j], l[i])
     return graph  
 
+
+
+class bool_circ(open_digraph):
     
+    def __init__(self,g):
+
+        self.inputs = g.inputs
+        self.outputs = g.outputs
+        self.nodes = g.nodes
+        if not(self.is_well_formed()):
+            raise Exception("n'est pas un circuit boolean")
+
+    def is_well_formed(self):
+        for node in nodes:
+            if node.label=="" and not(node.indegree()==1) : 
+                return False 
+            if (node.label=="&" or node.label=="|" or node.label=="^") and not(node.outdegree()==1):
+                return False
+            if (node.label=="~") and not(node.indegree()==1) and not(node.outdegree()==1):
+                return False
+            return not(self.is_cyclic())  
 
