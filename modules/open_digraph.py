@@ -56,9 +56,10 @@ class node:
         return les clés du dictionnaire des children autrement dit les ids des children
         '''
         return list(self.children.keys())
+    '''    
     def get_children_ids(self):
         return self.children
-    
+    '''
     def get_parent_ids(self):
 
         '''
@@ -338,6 +339,8 @@ class open_digraph: # for open directed graph
         for node in nodes : 
             if not(len(node.get_children_ids())==1) or not(len(node.get_parent_ids())==0):
                 return False
+            print(node.get_children_ids())
+
             if not(node.children[node.get_children_ids()[0]]==1):
                 return False
         return True
@@ -351,6 +354,7 @@ class open_digraph: # for open directed graph
         for node in nodes :
             if not(len(node.get_parent_ids())==1) or not(len(node.get_children_ids())==0):
                 return False
+
             if not(node.parents[node.get_parent_ids()[0]]==1):
                 return False
         return True
@@ -741,6 +745,24 @@ class open_digraph: # for open directed graph
 
     def profondeur_graph(self):
         return len(self.trie_topologique())-1
+
+    def longest_path(self,u,v):
+        trie=self.trie_topologique()
+        dist={u:0}
+        prev={}
+        res=[]
+        trouve=False
+        for i,lk in enumerate(trie):
+            if trouve:
+                res.append(lk)
+            if u in lk : 
+                trouve=True
+        flat_res = [item for sublist in res for item in sublist]
+        i=0
+        while(flat_res[i]!=v):
+            parentsw=self.get_node_by_id(flat_res[i]).get_parent_ids()
+
+
     
 
 
@@ -841,6 +863,8 @@ class bool_circ(open_digraph):
             if (node.label=="~") and not(node.indegree()==1) and not(node.outdegree()==1):
                 return False
             return not(self.is_cyclic())  
+
+    
 
 
 def remove_repetition(l):
