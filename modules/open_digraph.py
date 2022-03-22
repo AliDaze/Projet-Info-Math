@@ -30,6 +30,9 @@ class node:
         '''
         return f'id : {self.id} , label : {self.label} , parents : {self.parents} , children : {self.children}'
 
+    def __eq__(self, g):
+        return (self.id==g.id) and (self.label==g.label) and (self.parents==g.parents) and (self.children==g.children)
+
     
     def copy(self) :
         '''
@@ -170,6 +173,9 @@ class open_digraph: # for open directed graph
                 __repr__(i)
         else:
             __str__(self)
+
+    def __eq__(self, g):
+        return (self.inputs == g.inputs) and (self.outputs == g.outputs ) and (self.nodes == g.nodes )
 
 
 
@@ -339,7 +345,7 @@ class open_digraph: # for open directed graph
         for node in nodes : 
             if not(len(node.get_children_ids())==1) or not(len(node.get_parent_ids())==0):
                 return False
-            print(node.get_children_ids())
+            
 
             if not(node.children[node.get_children_ids()[0]]==1):
                 return False
@@ -402,6 +408,9 @@ class open_digraph: # for open directed graph
         '''
         return self.input_output_in_graph() and self.inputs_child_one() and self.outputs_parent_one() and self.cle_nodes_exist() and self.same_multiple_nodes()
 
+    def random_id_node(self):
+        return random.choice(self.get_node_ids())
+
     def add_node_input(self,idc):
         '''
         ajoute un input avec une arrete vers le noeud d'id idc
@@ -463,9 +472,7 @@ class open_digraph: # for open directed graph
                 for multiplicite in range(children[child]):
                     fichier.write(str(node.get_id()) + " -> " + str(child) + ";\n")
 
-
         fichier.write("}\n")
-
 
         fichier.close()
 
@@ -522,10 +529,10 @@ class open_digraph: # for open directed graph
         return cyclic 
 
     def min_id(self):
-        return min(self.get_node_ids())
+        return min(self.get_node_ids(),default=0)
 
     def max_id(self):
-        return max(self.get_node_ids())
+        return max(self.get_node_ids(),default=0)
 
     def shift_indices(self,n):
         for node in self.get_nodes():
@@ -547,13 +554,15 @@ class open_digraph: # for open directed graph
         min_id_g=g.max_id()
         min_id_self=self.min_id()
         max_id_self=self.max_id()
-        self.shift_indices(max(max_id_g,max_id_self)-min(min_id_g,min_id_self)+1)
+        self.shift_indices(max_id_g - min_id_self+1)
         self.set_output_ids(self.get_output_ids()+g.get_output_ids())
         self.set_input_ids(self.get_input_ids()+g.get_input_ids())
-        self.nodes.update(g.nodes)
+        nodez=map(lambda x : x.copy() ,g.nodes.values())
+        nodes = {node.id:node for node in nodez}
+        self.nodes.update(nodes)
     
     def parralel(self,g):
-        new=open_digraph.origin()
+        new=self.__class__.origin()
         new.iparralel(self)
         new.iparralel(g)
         return new
@@ -565,10 +574,12 @@ class open_digraph: # for open directed graph
         min_id_g=g.min_id()
         min_id_self=self.min_id()
         max_id_self=self.max_id()
-        self.shift_indices(max(max_id_g,max_id_self)-min(min_id_g,min_id_self)+1)
+        self.shift_indices(max_id_g - min_id_self+1)
         list_self_inputs=self.get_input_ids()
         list_g_outputs=g.get_output_ids()
-        self.nodes.update(g.nodes)
+        nodez=map(lambda x : x.copy() ,g.nodes.values())
+        nodes = {node.id:node for node in nodez}
+        self.nodes.update(nodes)
         
         for i in range(len(list_self_inputs)):
             self.add_edge(list_self_inputs[i],list_g_outputs[i])
@@ -581,6 +592,7 @@ class open_digraph: # for open directed graph
         new.icompose(newg)
 
         return new
+
     def parcours_dict(self,dict,node,k,nodes_notseen):
         if node in nodes_notseen: 
             dict[node.get_id()]=k
@@ -636,6 +648,7 @@ class open_digraph: # for open directed graph
         for i in range(len(nodes_ids)):
             dict_id[node_id[i]]=i
         return dict_id
+
     @classmethod
     def adjacency_matrix(self):
         dict_id=self.id_dict()
@@ -736,6 +749,7 @@ class open_digraph: # for open directed graph
             raise Exception("graphe cyclique")
         else : 
             return res
+
     def profondeur_noeud(self,g):
         if not(g in self.get_nodes()):
             raise Exception("noeud pas dans graphe")
@@ -747,6 +761,7 @@ class open_digraph: # for open directed graph
         return len(self.trie_topologique())-1
 
     def longest_path(self,u,v):
+
         trie=self.trie_topologique()
         dist={u:0}
         prev={}
@@ -759,9 +774,28 @@ class open_digraph: # for open directed graph
                 trouve=True
         flat_res = [item for sublist in res for item in sublist]
         i=0
-        while(flat_res[i]!=v):
+        while(flat_res[i]!=v and i < len(flat_res)):
             parentsw=self.get_node_by_id(flat_res[i]).get_parent_ids()
+            parentswInDist=[i for i in parentsw if i in dist.keys()]
+            if parentswInDist != []:
+                maxdistparent=max(parentswInDist,key=lambda x : dist[x])
+                dist[flat_res[i]]=dist[maxdistparent]+1
+                prev[flat_res[i]]=maxdistparent
+            i=i+1
 
+        parentsv=self.get_node_by_id(v).get_parent_ids()
+        parentsvInDist=[i for i in parentsv if i in dist.keys()]
+        if parentsvInDist != []:
+                maxdistparent=max(parentsvInDist,key=(lambda x : dist[x]))
+                dist[v]=dist[maxdistparent]+1
+                prev[v]=maxdistparent
+        chemin=[v]
+        current=v
+        while(current!=u):
+            current=prev[current]
+            chemin.append(current)
+        
+        return chemin[::-1],dist[v]
 
     
 
@@ -816,22 +850,35 @@ def random_triangular_int_matrix(n, bound, null_diag=True) :
 
 
 
-'''
 
-    def random(n, bound, inputs=0, outputs=0, form="free"):
+
+def random_graph(n, bound, inputs=0, outputs=0, form="free"):
     
     if form=="free":
-        return graph_from_adjacency_matrix(n)
+        M= random_int_matrix(n,bound,null_diag=False)
     elif form=="DAG":
-    ...
+        M=random_triangular_int_matrix(n,bound)
     elif form=="oriented":
-    ...
+        M= random_oriented_int_matrix(n,bound)
     elif form=="loop-free":
-    ...
+        M= random_int_matrix(n,bound)
     elif form=="undirected":
-    ...
+        M= random_symetric_int_matrix(n,bound,null_diag=False)
     elif form=="loop-free undirected":
-'''
+        M=random_symetric_int_matrix(n,bound)
+    G=graph_from_adjacency_matrix(M,n)
+    for i in range(inputs):
+        id_child=G.random_id_node()
+        while(id_child in G.get_input_ids()):
+            id_child=G.random_id_node()
+        G.add_node_input(id_child)
+    for i in range(outputs):
+        id_parent=G.random_id_node()
+        while(id_parent in G.get_output_ids()):
+            id_parent=G.random_id_node()
+        G.add_node_output(id_parent)
+    return G
+
 
 def graph_from_adjacency_matrix(M,n):
     graph=open_digraph([],[],[node(i,"v"+str(i),{},{}) for i in range(n)])

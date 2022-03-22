@@ -46,7 +46,7 @@ class GraphTest(unittest.TestCase):
     def test_is_well_formed(self):
         '''graph respectant toutes les conditions'''
         self.assertTrue(self.graph.is_well_formed())
-        '''mauvaise arrete/multiplicité differente'''
+        '''mauvaise arrete/multiplicitÃ© differente'''
         self.assertFalse(self.graph_2.is_well_formed())
         '''graph dont lequel un des inputs n'existe pas dans le graph '''
         self.assertFalse(self.graph_4.is_well_formed())
@@ -71,6 +71,52 @@ class GraphTest(unittest.TestCase):
         self.graph.remove_parallel_edges(2,16)
         self.assertTrue(self.graph.is_well_formed())
 
+    def test_shift_indices(self):
+        n=10
+        ids=self.graph.get_node_ids()
+        self.graph.shift_indices(n)
+        ids_shif=self.graph.get_node_ids()
+       #on tetste si les anciens ids +n soient egal aux nouveaux ids 
+        self.assertEqual(ids_shif, list(map(lambda x:x+n, ids)))
+
+    def test_iparralel_list(self):
+        max=self.graph.max_id()
+        min=self.graph.min_id()
+        g=self.graph.copy()
+        f=self.graph.copy()
+        f_prime=f.copy()
+        g_prime=g.copy()
+        self.graph.iparralel_list(g, f) 
+        self.assertTrue(set(f.get_node_ids()).issubset(set(self.graph.get_node_ids())))
+        self.assertTrue(set(f.get_input_ids()).issubset(set(self.graph.get_input_ids())))
+        self.assertTrue(set(f.get_output_ids()).issubset(set(self.graph.get_output_ids())))
+        self.assertTrue(set([i + max - min +1 for i in g.get_node_ids() ]).issubset(set(self.graph.get_node_ids())))
+        self.assertTrue(set([i + max - min +1 for i in g.get_input_ids() ]).issubset(set(self.graph.get_input_ids())))
+        self.assertTrue(set([i + max - min +1 for i in g.get_output_ids() ]).issubset(set(self.graph.get_output_ids())))
+        self.assertTrue(g== g_prime)
+        self.assertTrue(f== f_prime)
+
+    def test_djikstra(self):
+        self.assertTrue(self.graph.is_well_formed())
+        self.dist,self.prev=self.graph.djikstra(3)
+        self.assertTrue(self.dist[2]==1 and self.prev[2]==3)
+        self.assertTrue(self.dist[16]==2 and self.prev[16]==2)
+
+    def test_parallel_list(self):
+        max=self.graph.max_id()
+        min=self.graph.min_id()
+        g=self.graph.copy()
+        f=self.graph.copy()
+        f_prime=f.copy()
+        g_prime=g.copy()
+        res=self.graph.parralel_list(g, f)
+        self.assertTrue(set(f.get_node_ids()).issubset(set(res.get_node_ids())))
+        self.assertTrue(set(f.get_input_ids()).issubset(set(res.get_input_ids())))
+        self.assertTrue(set(f.get_output_ids()).issubset(set(res.get_output_ids())))
+        self.assertTrue(g==g_prime)
+        self.assertTrue(f==f_prime)
+
+        
         
 
 if __name__ == '__main__': # the following code is called only when
