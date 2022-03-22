@@ -2,6 +2,7 @@ import random
 import sys
 import os
 import webbrowser
+import copy
 
 
 class node:
@@ -295,6 +296,7 @@ class open_digraph: # for open directed graph
         '''
         remove des nodes du graph
         '''
+
         for arg in args:
             if arg in self.get_input_ids():
                 self.inputs.remove(arg)
@@ -302,9 +304,12 @@ class open_digraph: # for open directed graph
                 self.outputs.remove(arg)
             if arg in self.nodes.keys():
                 nodearg=self.get_node_by_id(arg)
-                for k in nodearg.get_parent_ids():
+                copy_parent=copy.copy(nodearg.parents)
+                copy_children=copy.copy(nodearg.children)
+
+                for k in copy_parent.keys():
                     self.remove_parallel_edges(k,arg)
-                for j in nodearg.get_children_ids():
+                for j in copy_children.keys():
                     self.remove_parallel_edges(arg,j)
                 self.nodes.pop(arg)
         self.clean()
@@ -640,29 +645,107 @@ class open_digraph: # for open directed graph
                 M[i][k]=i.children[k]
         return M
 
-    def djikstra(src,direction=None):
+    def djikstra(self,src,direction=None,tgt=None):
         q=[src]
         dist = {src : 0}
         prev = {}
         while (q!=[]):
-            u=(min(q,key=lambda x : dist[x])).get_id()
-            q.pop(u)
+
+            u=(min(q,key=lambda x : dist[x]))
+            if(tgt!=None and u==tgt):
+                return dist,prev
+            
+            q.remove(u)
             if direction == None : 
-                neighbors = [self.get_node_by_id(i) for i in u.get_children_ids()]+ [self.get_node_by_id(i) for i in u.get_parent_ids()]
+                neighbors = [i for i in self.get_node_by_id(u).get_children_ids()] + [i for i in self.get_node_by_id(u).get_parent_ids()]
             if direction == 1:
-                neneighbors = [self.get_node_by_id(i) for i in u.get_children_ids()]
+                neneighbors = [i for i in self.get_node_by_id(u).get_children_ids()]
             if direction ==-1 : 
-                neighbors = neighbors = [self.get_node_by_id(i) for i in u.get_parent_ids()]
+                neighbors = neighbors = [i for i in self.get_node_by_id(u).get_parent_ids()]
             for v in neighbors:
+                
                 if not(v in dist.keys()):
                     q.append(v)
-                if not(v in q) or (dist[v]> dist[u]+1):
+                if not(v in dist) or (dist[v]> dist[u]+1):
                     dist[v]=dist[u]+1
                     prev[v]=u
 
         return dist, prev
 
- 
+    def shortest_path(self,x,y):
+        dist, prev = self.djikstra(x,tgt=y)
+        return dist[tgt]
+
+
+    def ancetres_node(self,g,l):
+        ancetresg=self.get_node_by_id(g).get_parent_ids()
+        for i in ancetresg:
+            if not(i in l):
+                l.append(i)
+                l+=self.ancetres_node(i,l)
+
+        return l 
+        
+    def ancetres_communs(self,g,g2):
+        ancetresg=self.ancetres_node(g,[g])
+        ancetresg=remove_repetition(ancetresg)
+        ancetresg2=self.ancetres_node(g2,[g2])
+        ancetresg2=remove_repetition(ancetresg2)
+        if (not g in self.get_node_by_id(g).get_parent_ids()):
+            ancetresg.remove(g)
+        if (not g2 in self.get_node_by_id(g2).get_parent_ids()):
+            ancetresg2.remove(g2)
+        ancetrescommun=[]
+        
+        for i in ancetresg:
+            if i in ancetresg2:
+                ancetrescommun.append(i)
+        
+        return ancetrescommun
+    def distance_ancetres(self,n1,n2):
+        res={}
+        k=self.ancetres_communs(n1,n2)
+        
+        for i in (self.ancetres_communs(n1,n2)):
+            dist,prev=self.djikstra(i)
+            res[i]=(dist[n1],dist[n2])
+        return res
+
+    def cofeuilles(self):
+        return [i.get_id() for i in self.get_nodes() if i.get_parent_ids()==[] ]
+
+    
+    def trie_topologique(self):
+        copyg=self.copy()
+        res=list()
+        cofeuilles=copyg.cofeuilles()
+        while(cofeuilles!=[]):
+            
+            res.append(cofeuilles)
+            
+            for i in cofeuilles:
+                copyg.remove_node_by_id(i)
+            
+            cofeuilles=copyg.cofeuilles()
+
+        if copyg.get_nodes()!=[]:
+            raise Exception("graphe cyclique")
+        else : 
+            return res
+    def profondeur_noeud(self,g):
+        if not(g in self.get_nodes()):
+            raise Exception("noeud pas dans graphe")
+        for i,k in enumerate(self.trie_topologique()):
+            if g.get_id() in k :
+                return i+1
+
+    def profondeur_graph(self):
+        return len(self.trie_topologique())-1
+    
+
+
+
+
    
 def random_rand_list(n,bound):
     return [int(random.randrange(0,bound)) for i in range(n)]
@@ -759,3 +842,10 @@ class bool_circ(open_digraph):
                 return False
             return not(self.is_cyclic())  
 
+
+def remove_repetition(l):
+    res=[]
+    for i in l:
+        if i not in res:
+            res.append(i)
+    return res

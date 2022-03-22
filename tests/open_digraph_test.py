@@ -3,6 +3,7 @@ import os
 root = os.path.normpath(os.path.join(__file__, './../..'))
 sys.path.append(root)# allows us to fetch files from the project root
 import unittest
+
 from modules.open_digraph import *
 
 
@@ -46,7 +47,8 @@ class GraphTest(unittest.TestCase):
     def test_is_well_formed(self):
         '''graph respectant toutes les conditions'''
         self.assertTrue(self.graph.is_well_formed())
-        '''mauvaise arrete/multiplicité differente'''
+        
+
         self.assertFalse(self.graph_2.is_well_formed())
         '''graph dont lequel un des inputs n'existe pas dans le graph '''
         self.assertFalse(self.graph_4.is_well_formed())
