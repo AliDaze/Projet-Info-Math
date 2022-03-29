@@ -454,7 +454,8 @@ class open_digraph(open_digraph_dijkstra,open_digraph_affiche,open_digraph_compo
 			if gcopy.nodes == {} : 
 				cyclic=False
 				break
-			for i in gcopy.nodes.values():
+			nodez=copy.copy(gcopy.nodes)
+			for i in nodez.values():
 				if i.children=={}:
 					gcopy.remove_node_by_id(i.get_id())
 					retire=True
@@ -593,23 +594,50 @@ def graph_from_adjacency_matrix(M,n):
 
 class bool_circ(open_digraph):
 	
-	def __init__(self,g):
+	def __init__(self,inputs, outputs, nodes):
 
-		self.inputs = g.inputs
-		self.outputs = g.outputs
-		self.nodes = g.nodes
+		self.inputs = inputs
+		self.outputs = outputs
+		self.nodes = {node.id:node for node in nodes} 
 		if not(self.is_well_formed()):
 			raise Exception("n'est pas un circuit boolean")
 
+	@classmethod
+	def origin(cls): 
+		return cls([],[],[])
+
 	def is_well_formed(self):
-		for node in nodes:
+		for node in self.nodes.values():
 			if node.label=="" and not(node.indegree()==1) : 
 				return False 
 			if (node.label=="&" or node.label=="|" or node.label=="^") and not(node.outdegree()==1):
 				return False
 			if (node.label=="~") and not(node.indegree()==1) and not(node.outdegree()==1):
 				return False
-			return not(self.is_cyclic())  
+		return not(self.is_cyclic())  
+
+	def parse_parentheses(self,s):
+		g = open_digraph([],[1],[node(0,"",{},{1:1}),node(1,"",{0:1},{})])
+		current_node=0
+		s2=""
+		for char in s :
+			if char=='(':
+				current_node_n=g.get_node_by_id(current_node)
+				current_node_n.set_label(current_node_n.get_label()+s2)
+				k=current_node
+				current_node=g.new_id()
+				g.add_node("",{},{k:1})
+				s2=""
+			elif char ==')':
+				current_node_n=g.get_node_by_id(current_node)
+				current_node_n.set_label(current_node_n.get_label()+s2)
+				current_node=current_node_n.get_children_ids()[0]
+				s2=""
+			else : 
+				s2+=char
+		return bool_circ(g.inputs,g.outputs,g.get_nodes())
+
+
 
 	
 
