@@ -23,6 +23,7 @@ class open_digraph_compose:
 		'''
 		shift tout les indices d'une certaine valeurs n donnée
 		'''
+		dictn={}
 		for node in self.get_nodes():
 			old_id=node.get_id()
 			child={idc+n:node.children[idc] for idc in node.get_children_ids()}
@@ -30,12 +31,13 @@ class open_digraph_compose:
 			node.set_parent_ids(parent)
 			node.set_children_ids(child)
 			node.set_id(node.get_id()+n)
-			self.nodes[node.get_id()]=node
-			del self.nodes[old_id]
+			dictn[node.get_id()]=node
+			
 		inputs=[i+n for i in self.get_input_ids()]
 		output=[i+n for i in self.get_output_ids()]
 		self.set_output_ids(output)
 		self.set_input_ids(inputs)
+		self.nodes=dictn
 
 	def iparralel(self,g):
 		'''
@@ -124,7 +126,7 @@ class open_digraph_compose:
 			self.iparralel(i)
 
 	def parralel_list(self,*args):
-		new=open_digraph.origin()
+		new=self.__class__.origin()
 		new.iparralel(self)
 		for argk in args:
 			new.iparralel(argk)

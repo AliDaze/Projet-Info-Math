@@ -34,8 +34,10 @@ G2=graph_from_adjacency_matrix(M2,4)
 k=bool_circ.origin()
 
 
-g=k.parse_parentheses("((x0)&((x1)&(x2)))|((x1)&(~(x2)))")
+g=k.parse_parentheses("((x0)&((x1)&(x2)))|((x1)&(~(x2)))", "((x0)&(~(x1)))|(x2)")
+
 g.display(True)
+
 
 
 

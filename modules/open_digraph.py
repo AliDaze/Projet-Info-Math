@@ -501,6 +501,34 @@ class open_digraph(open_digraph_dijkstra,open_digraph_affiche,open_digraph_compo
 			list_g.append(newg)
 		return list_g
 
+	def fusionne_noeuds(self,id1,id2):
+		if(not(id1 in self.get_node_ids()) or not(id2 in self.get_node_ids())):
+			raise Exception("id pas dans le graph")
+		node2=self.get_node_by_id(id2)
+		node1=self.get_node_by_id(id1)
+		children1=node1.children
+		parents1=node1.parents
+		children2=node2.children
+		parents2=node2.parents
+		
+		for i in children2.keys():
+			if i in children1.keys():
+				children1[i]+=children2[i]
+			else : 
+				children1[i]=children2[i]
+		for j in parents2.keys():
+			if j in parents1.keys():
+				parents1[j]+=parents2[j]
+			else : 
+				parents1[j]=parents2[j]
+		self.add_node(node1.get_label(),parents1,children1)
+		self.remove_node_by_id(id1)
+		self.remove_node_by_id(id2)
+
+	
+
+
+
 def random_rand_list(n,bound):
 	return [int(random.randrange(0,bound)) for i in range(n)]
 
@@ -616,7 +644,7 @@ class bool_circ(open_digraph):
 				return False
 		return not(self.is_cyclic())  
 
-	def parse_parentheses(self,s):
+	def parse_parentheses_bis(self,s):
 		g = open_digraph([],[1],[node(0,"",{},{1:1}),node(1,"",{0:1},{})])
 		current_node=0
 		s2=""
@@ -635,7 +663,34 @@ class bool_circ(open_digraph):
 				s2=""
 			else : 
 				s2+=char
-		return bool_circ(g.inputs,g.outputs,g.get_nodes())
+		res=bool_circ(g.inputs,g.outputs,g.get_nodes())
+		res.fusionne_nodes_graph()
+
+
+
+		return res
+
+	def fusionne_nodes_graph(self):
+		resnodes=self.get_nodes()
+		for i in range(len(resnodes)):
+			# si le noeud n'est pas un operateur
+			if resnodes[i].get_label()!="" and resnodes[i].get_label()!="&" and resnodes[i].get_label()!="|" and resnodes[i].get_label()!="" and resnodes[i].get_label()!="^" and resnodes[i].get_label()!="~":
+
+				for j in range(i+1,len(resnodes)):
+					if resnodes[i].get_label()==resnodes[j].get_label():
+						
+						self.fusionne_noeuds(resnodes[i].get_id(),resnodes[j].get_id())
+
+	def parse_parentheses(self,*args):
+		
+		G=bool_circ.origin()
+		for argk in args:
+			
+			G.iparralel(G.parse_parentheses_bis(argk))
+		
+		G.fusionne_nodes_graph()
+		return G
+
 
 
 
