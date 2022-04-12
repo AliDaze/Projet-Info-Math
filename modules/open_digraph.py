@@ -4,6 +4,8 @@ import os
 import webbrowser
 import copy
 import time
+from math import *
+import numpy as np
 
 from modules.open_digraph_dijkstra import open_digraph_dijkstra
 from modules.open_digraph_compose import open_digraph_compose
@@ -627,8 +629,13 @@ class bool_circ(open_digraph):
 		self.inputs = inputs
 		self.outputs = outputs
 		self.nodes = {node.id:node for node in nodes} 
+		self.identify={}
 		if not(self.is_well_formed()):
 			raise Exception("n'est pas un circuit boolean")
+
+	def get_identify(self):
+		return self.identify		
+
 
 	@classmethod
 	def origin(cls): 
@@ -665,10 +672,24 @@ class bool_circ(open_digraph):
 				s2+=char
 		res=bool_circ(g.inputs,g.outputs,g.get_nodes())
 		res.fusionne_nodes_graph()
+		#res.insert_copies()
 
 
 
 		return res
+	def insert_copies(self):
+		resnodes=self.get_nodes()
+		
+		for i in range(len(resnodes)):
+			if resnodes[i].get_label()!="" and resnodes[i].get_label()!="&" and resnodes[i].get_label()!="|" and resnodes[i].get_label()!="" and resnodes[i].get_label()!="^" and resnodes[i].get_label()!="~":
+				self.identify[resnodes[i].get_label()]=resnodes[i].get_id()
+				new_id=self.new_id()
+				self.add_node("",{},{resnodes[i].get_id():1})
+				self.add_input_id(new_id)
+				resnodes[i].set_label("")
+		
+
+
 
 	def fusionne_nodes_graph(self):
 		resnodes=self.get_nodes()
@@ -689,6 +710,8 @@ class bool_circ(open_digraph):
 			G.iparralel(G.parse_parentheses_bis(argk))
 		
 		G.fusionne_nodes_graph()
+		G.insert_copies()
+
 		return G
 
 
@@ -703,3 +726,33 @@ def remove_repetition(l):
 		if i not in res:
 			res.append(i)
 	return res
+
+
+def tab_vrt(s):
+	ligne=len(s)
+
+	colonne=log2(ligne)
+	l=[]
+	
+	for i in range(ligne):
+		k=bin(i)
+		k=k[2:]
+		k='0'*(int(colonne)-len(k))+k
+		col=[]
+		
+		for j in range(int(colonne)):
+			col.append(k[j])
+
+		
+		col.append(s[i])
+		
+		l.append(col)
+
+	return l
+
+def circ_ligne(l):
+	if l[-1]=='1':
+		
+		k=l[:-1]
+		for  i in range(len(l)):
+			

@@ -1,4 +1,5 @@
 from modules.open_digraph import *
+import math 
 
 
 
@@ -36,8 +37,10 @@ k=bool_circ.origin()
 
 g=k.parse_parentheses("((x0)&((x1)&(x2)))|((x1)&(~(x2)))", "((x0)&(~(x1)))|(x2)")
 
-g.display(True)
-
+#g.display(True)
+print(g.get_identify())
+print(tab_vrt('1110001000111111'))
+print(math.log2(16))
 
 
 
