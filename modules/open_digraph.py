@@ -701,8 +701,8 @@ class bool_circ(open_digraph):
 					if resnodes[i].get_label()==resnodes[j].get_label():
 						
 						self.fusionne_noeuds(resnodes[i].get_id(),resnodes[j].get_id())
-
-	def parse_parentheses(self,*args):
+	
+	def parse_parentheses(self, *args):
 		
 		G=bool_circ.origin()
 		for argk in args:
@@ -729,7 +729,12 @@ def remove_repetition(l):
 
 
 def tab_vrt(s):
+	'''
+	on donne une chaine et ca renvoie la table de vert associee
+	'''
 	ligne=len(s)
+	if (not log2(ligne)==float(int(log2(ligne)))):
+		raise Exception("la chaine ne represente pas une puissance de deux, la table n'est pas valide ")
 
 	colonne=log2(ligne)
 	l=[]
@@ -751,8 +756,32 @@ def tab_vrt(s):
 	return l
 
 def circ_ligne(l):
+	'''
+	on lui donne une ligne de la table de verite et ça renvoie la chaine de carecterer correspondante 
+	'''
+	s=""
 	if l[-1]=='1':
-		
-		k=l[:-1]
-		for  i in range(len(l)):
-			
+		for i in range(len(l)-1):
+			if l[i]=='0':
+				if not(i==len(l)-2):
+					s+='(~(x'+str(i)+'))&'
+				else :
+					s+='(~(x'+str(i)+'))'
+			else :
+				if not(i==len(l)-2):
+					s+='(x'+str(i)+')&'
+				else :
+					s+='(x'+str(i)+')'
+		s='('+s+')'	
+	return s
+
+def tab_vrt_vers_graph(s):
+	tab=tab_vrt(s)
+	ss=""
+	for i in range(len(tab)) :
+		if not(i==len(tab)-1):
+			ss+=circ_ligne(tab[i])+'|'
+		else :
+			ss+=circ_ligne(tab[i])
+	ss='('+ss+')'
+	return bool_circ.parse_parentheses(ss)
