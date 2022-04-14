@@ -92,4 +92,4 @@ class open_digraph_affiche:
 		webbrowser.open_new(nom+".pdf")
 		os.remove(nom+".dot")
 		time.sleep(0.05)
-		#os.remove(nom+".pdf")
+		os.remove(nom+".pdf")
