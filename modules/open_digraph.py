@@ -616,6 +616,11 @@ def graph_from_adjacency_matrix(M,n):
 		for j in range(n):
 			for k in range(M[i][j]):
 				graph.add_edge(l[j], l[i])
+	for i in graph.get_nodes():
+		if i.get_children_ids()==[] and len(i.get_parent_ids())==1 and i.parents[i.get_parent_ids()[0]]==1:
+			graph.outputs.append(i.get_id())
+		if i.get_parent_ids()==[] and len(i.get_children_ids())==1 and i.children[i.get_children_ids()[0]]==1:
+			graph.inputs.append(i.get_id())
 	return graph 
 
 	
@@ -706,7 +711,7 @@ class bool_circ(open_digraph):
 
 						id_n=self.fusionne_noeuds(resnodes[i].get_id(),resnodes[j].get_id())
 						resnodes[i]=self.get_node_by_id(id_n)
-						resnodes[j].set_label("")
+						resnodes[j].set_label("") # changement de label pour ne pas refusionner un noeud qui a été supprimé (affectation None ne fonctionne pas)
 
 	
 	def parse_parentheses(self, *args):
@@ -720,6 +725,32 @@ class bool_circ(open_digraph):
 		G.insert_copies()
 
 		return G
+
+def random_bool_circ(n,bound,inputs,outputs):
+	M=random_triangular_int_matrix(n,bound)
+	graph=graph_from_adjacency_matrix(M,n)
+	if len(graph.get_input_ids()>inputs):
+		while(graph.get_input_ids()>inputs):
+			inputs_graph=graph.get_input_ids()
+			random_inputs=random.sample(inputs_graph,k=2)
+			new_id=graph.new_id()
+			graph.add_node(graph.get_node_by_id(inputs_graph[0]).get_label()+graph.get_node_by_id(inputs_graph[1]).get_label(),{},{random_inputs[0]:1,random_inputs[1]:1})
+			graph.inputs.pop(inputs_graph[0])
+			graph.inputs.pop(inputs_graph[1])
+			new_id2=graph.new_id()
+			graph.add_node(graph.get_node_by_id(inputs_graph[0]).get_label()+graph.get_node_by_id(inputs_graph[1]).get_label()+"bis",{},{new_id:1})
+			graph.inputs.append(new_id2)
+		while(graph.get_input_ids()<inputs):
+			nodes_not_inputs=graph.get_node_ids()-graph.get_input_ids()
+			random_nodes=random.sample(nodes_not_inputs,k=1)
+			new_id=graph.new_id()
+			graph.add_node(graph.get_node_by_id(random_nodes[0]).get_label()+"input",{},{random_nodes[0]:1})
+			graph.inputs.append(new_id)
+		
+
+
+	return graph
+
 
 
 

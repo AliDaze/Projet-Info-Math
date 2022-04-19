@@ -1,6 +1,6 @@
 from modules.open_digraph import *
 import math 
-
+import random
 
 
 
@@ -33,8 +33,8 @@ G2=graph_from_adjacency_matrix(M2,4)
 #print(path)
 #print(dist)
 k=bool_circ.origin()
-
-
+l=[3,2,7,4]
+print(random.sample(l,k=1))
 #g=k.parse_parentheses("((x0)&((x1)&(x2)))|((x1)&(~(x2)))", "((x0)&(~(x1)))|(x2)")
 #print(g)
 #g.display(True)
@@ -42,9 +42,11 @@ k=bool_circ.origin()
 #print(tab_vrt('1110001000111111'))
 #print(math.log2(16))
 #print(circ_ligne(['0','0','1','0','1']))
-klm=k.parse_parentheses(tab_vrt_vers_graph('1110001000111111'))
-klm.display(True)
-
+#klm=k.parse_parentheses(tab_vrt_vers_graph('1110001000111111'))
+#klm.display(True)
+#G=random_bool_circ(6,2,4,2)
+#G.display(True)
+#print(G)
 
 #print(G.is_well_formed())
 #G.display(True)
