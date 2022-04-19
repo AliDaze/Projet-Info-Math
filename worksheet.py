@@ -35,15 +35,15 @@ G2=graph_from_adjacency_matrix(M2,4)
 k=bool_circ.origin()
 
 
-g=k.parse_parentheses("((x0)&((x1)&(x2)))|((x1)&(~(x2)))", "((x0)&(~(x1)))|(x2)")
-
+#g=k.parse_parentheses("((x0)&((x1)&(x2)))|((x1)&(~(x2)))", "((x0)&(~(x1)))|(x2)")
+#print(g)
 #g.display(True)
-print(g.get_identify())
-print(tab_vrt('1110001000111111'))
+#print(g.get_identify())
+#print(tab_vrt('1110001000111111'))
 #print(math.log2(16))
 #print(circ_ligne(['0','0','1','0','1']))
-klm=tab_vrt_vers_graph('1110001000111111')
-klm.display()
+klm=k.parse_parentheses(tab_vrt_vers_graph('1110001000111111'))
+klm.display(True)
 
 
 #print(G.is_well_formed())

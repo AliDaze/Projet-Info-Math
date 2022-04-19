@@ -523,9 +523,11 @@ class open_digraph(open_digraph_dijkstra,open_digraph_affiche,open_digraph_compo
 				parents1[j]+=parents2[j]
 			else : 
 				parents1[j]=parents2[j]
+		new_id=self.new_id()
 		self.add_node(node1.get_label(),parents1,children1)
 		self.remove_node_by_id(id1)
 		self.remove_node_by_id(id2)
+		return new_id
 
 	
 
@@ -658,7 +660,8 @@ class bool_circ(open_digraph):
 		for char in s :
 			if char=='(':
 				current_node_n=g.get_node_by_id(current_node)
-				current_node_n.set_label(current_node_n.get_label()+s2)
+				if current_node_n.get_label()=="":
+					current_node_n.set_label(current_node_n.get_label()+s2)
 				k=current_node
 				current_node=g.new_id()
 				g.add_node("",{},{k:1})
@@ -671,7 +674,7 @@ class bool_circ(open_digraph):
 			else : 
 				s2+=char
 		res=bool_circ(g.inputs,g.outputs,g.get_nodes())
-		res.fusionne_nodes_graph()
+		#res.fusionne_nodes_graph()
 		#res.insert_copies()
 
 
@@ -695,12 +698,16 @@ class bool_circ(open_digraph):
 		resnodes=self.get_nodes()
 		for i in range(len(resnodes)):
 			# si le noeud n'est pas un operateur
-			if resnodes[i].get_label()!="" and resnodes[i].get_label()!="&" and resnodes[i].get_label()!="|" and resnodes[i].get_label()!="" and resnodes[i].get_label()!="^" and resnodes[i].get_label()!="~":
+			if resnodes[i].get_label()!="&" and resnodes[i].get_label()!="|" and resnodes[i].get_label()!="" and resnodes[i].get_label()!="^" and resnodes[i].get_label()!="~":
 
 				for j in range(i+1,len(resnodes)):
 					if resnodes[i].get_label()==resnodes[j].get_label():
-						
-						self.fusionne_noeuds(resnodes[i].get_id(),resnodes[j].get_id())
+						print(resnodes[i].get_id(),resnodes[j].get_id())
+
+						id_n=self.fusionne_noeuds(resnodes[i].get_id(),resnodes[j].get_id())
+						resnodes[i]=self.get_node_by_id(id_n)
+						resnodes[j].set_label("")
+
 	
 	def parse_parentheses(self, *args):
 		
@@ -779,9 +786,11 @@ def tab_vrt_vers_graph(s):
 	tab=tab_vrt(s)
 	ss=""
 	for i in range(len(tab)) :
-		if not(i==len(tab)-1):
-			ss+=circ_ligne(tab[i])+'|'
-		else :
-			ss+=circ_ligne(tab[i])
+		if tab[i][-1]=='1':
+			if not(i==len(tab)-1):
+				ss+=circ_ligne(tab[i])+'|'
+			else :
+				ss+=circ_ligne(tab[i])
 	ss='('+ss+')'
-	return bool_circ.parse_parentheses(ss)
+	print(ss)
+	return ss
