@@ -716,7 +716,7 @@ class bool_circ(open_digraph):
 	
 	def parse_parentheses(self, *args):
 		
-		G=bool_circ.origin()
+		G = bool_circ.origin()
 		for argk in args:
 			
 			G.iparralel(G.parse_parentheses_bis(argk))
@@ -727,26 +727,58 @@ class bool_circ(open_digraph):
 		return G
 
 def random_bool_circ(n,bound,inputs,outputs):
-	M=random_triangular_int_matrix(n,bound)
-	graph=graph_from_adjacency_matrix(M,n)
-	if len(graph.get_input_ids()>inputs):
-		while(graph.get_input_ids()>inputs):
-			inputs_graph=graph.get_input_ids()
-			random_inputs=random.sample(inputs_graph,k=2)
-			new_id=graph.new_id()
-			graph.add_node(graph.get_node_by_id(inputs_graph[0]).get_label()+graph.get_node_by_id(inputs_graph[1]).get_label(),{},{random_inputs[0]:1,random_inputs[1]:1})
-			graph.inputs.pop(inputs_graph[0])
-			graph.inputs.pop(inputs_graph[1])
-			new_id2=graph.new_id()
-			graph.add_node(graph.get_node_by_id(inputs_graph[0]).get_label()+graph.get_node_by_id(inputs_graph[1]).get_label()+"bis",{},{new_id:1})
-			graph.inputs.append(new_id2)
-		while(graph.get_input_ids()<inputs):
-			nodes_not_inputs=graph.get_node_ids()-graph.get_input_ids()
-			random_nodes=random.sample(nodes_not_inputs,k=1)
-			new_id=graph.new_id()
-			graph.add_node(graph.get_node_by_id(random_nodes[0]).get_label()+"input",{},{random_nodes[0]:1})
-			graph.inputs.append(new_id)
-		
+	M = random_triangular_int_matrix(n,bound)
+	graph = graph_from_adjacency_matrix(M,n)
+
+	while(len(graph.get_input_ids()) > inputs):
+		inputs_graph = graph.get_input_ids()
+		random_inputs = random.sample(inputs_graph,k = 2)
+		new_id = graph.new_id()
+		graph.add_node(graph.get_node_by_id(random_inputs[0]).get_label() + graph.get_node_by_id(random_inputs[1]).get_label(),{},{random_inputs[0]:1,random_inputs[1]:1})
+		graph.inputs.pop(random_inputs[0])
+		graph.inputs.pop(random_inputs[1])
+		new_id2 = graph.new_id()
+		graph.add_node(graph.get_node_by_id(random_inputs[0]).get_label() + graph.get_node_by_id(random_inputs[1]).get_label() + "bis",{},{new_id:1})
+		graph.inputs.append(new_id2)
+	while(len(graph.get_input_ids()) < inputs):
+		nodes_not_inputs = [node for node in graph.get_node_ids() if node not in graph.get_input_ids()]
+		random_nodes = random.sample(nodes_not_inputs,k = 1)
+		new_id = graph.new_id()
+		graph.add_node(graph.get_node_by_id(random_nodes[0]).get_label() + "input",{},{random_nodes[0]:1})
+		graph.inputs.append(new_id)
+	while(len(graph.get_output_ids()) > outputs):
+		outputs_graph=graph.get_output_ids()
+		random_outputs = random.sample(outputs_graph, k = 2)
+		new_id=graph.new_id()
+		graph.add_node(graph.get_node_by_id(random_outputs[0]).get_label() + graph.get_node_by_id(random_outputs[1]).get_label(),{random_outputs[0]:1,random_outputs[1]:1},{})
+		graph.outputs.pop(random_outputs[0])
+		graph.outputs.pop(random_outputs[1])
+		graph.inputs.pop(random_inputs[1])
+		new_id2 = graph.new_id()
+		graph.add_node(graph.get_node_by_id(random_outputs[0]).get_label() + graph.get_node_by_id(random_outputs[1]).get_label() + "bis",{},{new_id:1})
+		graph.outputs.append(new_id2)
+	while(len(graph.get_output_ids()) < outputs):
+		nodes_not_outputs = [node for node in graph.get_node_ids() if node not in graph.get_output_ids()]
+		random_nodes = random.sample(nodes_not_inputs,k = 1)
+		new_id = graph.new_id()
+		graph.add_node(graph.get_node_by_id(random_nodes[0]).get_label() + "output",{random_nodes[0]:1},{})
+		graph.outputs.append(new_id)
+
+	op_binaires=["&","|"]
+	nodes=graph.get_nodes()
+	for node in nodes:
+		if(node.indegree() == 1 and node.outdegree() == 1):
+			node.set_label("~")
+		if(node.indegree() == 1 and node.outdegree() > 1):
+			node.set_label("")
+		if(node.indegree() > 1 and node.outdegree() == 1):
+			node.set_label(random.sample(op_binaires,k = 1)[0])
+		if(node.indegree() > 1 and node.outdegree() > 1):
+			id_uop=graph.new_id()
+			graph.add_node(random.sample(op_binaires,k = 1)[0],node.parents,{})
+			graph.add_node("",{id_uop:1},node.children)
+			graph.remove_node_by_id(node.get_id())
+
 
 
 	return graph
