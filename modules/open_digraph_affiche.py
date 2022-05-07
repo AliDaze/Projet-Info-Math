@@ -35,8 +35,8 @@ class open_digraph_affiche:
 		fichier.write("digraph "+graph_name+" {\n")
 		if verbose:
 			for node in self.nodes:
-				fichier.write(str(node)+" [label=\" label: "+self.nodes[node].get_label()+ " \\nid: " + str(node)+ "\"];\n")
-				#fichier.write(str(node)+" [label=\""+self.nodes[node].get_label()+"\"];")
+				#fichier.write(str(node)+" [label=\" label: "+self.nodes[node].get_label()+ " \\nid: " + str(node)+ "\"];\n")
+				fichier.write(str(node)+" [label=\""+self.nodes[node].get_label()+"\"];")
 				
 
 		for node in self.get_nodes():

@@ -1,3 +1,5 @@
+from doctest import FAIL_FAST
+from unicodedata import decimal
 from modules.open_digraph import *
 import math 
 import random
@@ -37,7 +39,7 @@ l=[3,2,7,4]
 print(random.sample(l,k=1))
 
 g=random_bool_circ(7,3,1,3)
-g.display(True)
+#g.display(True)
 #print(g.inputs)
 #print(g.outputs)
 #g=k.parse_parentheses("((x0)&((x1)&(x2)))|((x1)&(~(x2)))", "((x0)&(~(x1)))|(x2)")
@@ -76,3 +78,5 @@ g.display(True)
 #G2.display(True)
 #print(g_new.is_well_formed())
 #print(g_new)
+#print(bool_circ.half_adder(11101110,10100111,3,True))
+bool_circ.adder(1).display(True)

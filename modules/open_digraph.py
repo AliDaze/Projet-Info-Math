@@ -10,6 +10,7 @@ import numpy as np
 from modules.open_digraph_dijkstra import open_digraph_dijkstra
 from modules.open_digraph_compose import open_digraph_compose
 from modules.open_digraph_affiche import open_digraph_affiche
+from modules.open_digraph_registres import open_digraph_registres
 
 
 class node:
@@ -235,10 +236,12 @@ class open_digraph(open_digraph_dijkstra,open_digraph_affiche,open_digraph_compo
 		'''
 		crée un nouvel id
 		'''
+		m=0
 		l=self.get_node_ids()+ self.get_input_ids() +self.get_output_ids()
-		m=l[0]
-		while (m in l):
-			m=m+1
+		if l!=[]:
+			m=l[0]
+			while (m in l):
+				m=m+1
 		return m
 	def clean(self):
 		'''
@@ -271,7 +274,8 @@ class open_digraph(open_digraph_dijkstra,open_digraph_affiche,open_digraph_compo
 		'''
 		crée un node avec label et parents/enfants données
 		'''
-		new_node=node(self.new_id(), label, {}, {})
+		id=self.new_id()
+		new_node=node(id, label, {}, {})
 		self.nodes[new_node.get_id()]=new_node
 		for i in parents.keys() :
 			for j in range(parents[i]):
@@ -280,6 +284,7 @@ class open_digraph(open_digraph_dijkstra,open_digraph_affiche,open_digraph_compo
 		for i in children.keys() :
 			for j in range(children[i]):
 				self.add_edge(i, new_node.get_id())
+		return id
 
 	def remove_edge(self,src,tgt):
 		'''
@@ -418,7 +423,7 @@ class open_digraph(open_digraph_dijkstra,open_digraph_affiche,open_digraph_compo
 	def random_id_node(self):
 		return random.choice(self.get_node_ids())
 
-	def add_node_input(self,idc):
+	def add_node_input(self,idc, label=""):
 		'''
 		ajoute un input avec une arrete vers le noeud d'id idc
 		'''
@@ -428,10 +433,10 @@ class open_digraph(open_digraph_dijkstra,open_digraph_affiche,open_digraph_compo
 			raise Exception("Sorry, no id in the graph")
 		children_node={idc:1}
 		id_node=self.new_id()
-		self.add_node("",{},children_node)
+		self.add_node(label,{},children_node)
 		self.set_input_ids(self.get_input_ids()+[id_node])
 
-	def add_node_output(self,idp):
+	def add_node_output(self,idp,label=""):
 		'''
 		ajoute un output avec une arrete vers le noeud d'id idp
 		'''
@@ -441,7 +446,7 @@ class open_digraph(open_digraph_dijkstra,open_digraph_affiche,open_digraph_compo
 			raise Exception("Sorry , no id in the graph")
 		parents_node={idp:1}
 		id_node=self.new_id()
-		self.add_node("",parents_node,{})
+		self.add_node(label,parents_node,{})
 		self.set_output_ids(self.get_output_ids()+[id_node])
 
 	
@@ -629,7 +634,7 @@ def graph_from_adjacency_matrix(M,n):
 
 
 
-class bool_circ(open_digraph):
+class bool_circ(open_digraph,open_digraph_registres):
 	
 	def __init__(self,inputs, outputs, nodes):
 
@@ -679,8 +684,8 @@ class bool_circ(open_digraph):
 			else : 
 				s2+=char
 		res=bool_circ(g.inputs,g.outputs,g.get_nodes())
-		#res.fusionne_nodes_graph()
-		#res.insert_copies()
+		res.fusionne_nodes_graph()
+		res.insert_copies()
 
 
 
@@ -725,6 +730,8 @@ class bool_circ(open_digraph):
 		G.insert_copies()
 
 		return G
+
+		
 
 def random_bool_circ(n,bound,inputs,outputs):
 	M = random_triangular_int_matrix(n,bound)
