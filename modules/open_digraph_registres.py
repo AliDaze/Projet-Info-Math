@@ -77,5 +77,10 @@ class open_digraph_registres:
         return G
 
             
+    @classmethod
+    def half_adder(cls,n):
+        G = cls.adder(n)
+        G.get_node_by_id(G.get_input_ids()[-1]).set_label("0")
+        return G
 
 
