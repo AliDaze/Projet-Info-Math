@@ -82,5 +82,95 @@ class open_digraph_registres:
         G = cls.adder(n)
         G.get_node_by_id(G.get_input_ids()[-1]).set_label("0")
         return G
+    @classmethod
+    def entier_adder(cls,n,taille=8):
+        graph=cls.origin()
+        bin_n=bin(n)[2:]
+        if(taille<(len(bin_n))):
+            raise Exception("mauvaise taille de registre")
+        bin_n=((taille-len(bin_n))*"0")+bin_n
+        for i in range(len(bin_n)):
+            id=graph.new_id()
+            graph.add_node(bin_n[i])
+            graph.add_input_id(id)
+            id2=graph.new_id()
+            graph.add_node(f"output{i}",{id:1},{})
+            graph.add_output_id(id2)
 
+        print(graph.is_well_formed_circ())
+        return graph
+
+    def table1_regles(self):
+        '''
+        retire les copies et les remplace par des repetitions de la primitive
+        '''
+        nodes=self.get_nodes()
+        for node in nodes:
+            if(node.get_label() == "0" or node.get_label() == "1"):
+
+                if(node.get_children_ids()[0].get_label() == ""):
+
+                    nodes_copies = node.get_children_ids()[0].get_children_ids()
+                    for node_copie in nodes_copies:
+
+                        id_node=self.new_id()
+                        self.add_node(node.get_label(),{},{node_copie:1})
+                        self.add_input_id(id_node)
+
+                    self.remove_node_by_id(node.get_children_ids()[0])
+                    self.remove_node_by_id(node.get_id())
+
+                if(node.get_children_ids()[0].get_label() == "~"):
+                    if(node.get_label() == "0"):
+                        self.add_node("1",{},{node.get_children_ids()[0].get_children_ids()[0]:1})
+                        self.remove_node_by_id(node.get_children_ids()[0])
+                        self.remove_node_by_id(node.get_id())
+                    else:
+                        self.add_node("0",{},{node.get_children_ids()[0].get_children_ids()[0]:1})
+                        self.remove_node_by_id(node.get_children_ids()[0])
+                        self.remove_node_by_id(node.get_id())
+
+                if(node.get_children_ids()[0].get_label() == "&"):
+                    if(node.get_label() == "0"):
+                        nodes_copies= node.get_children_ids()[0].get_parent_ids()
+                        for node_copie in nodes_copies:
+                            self.add_node("",{node_copie:1},{})
+                        self.add_node("0",{},{node.get_children_ids()[0].get_children()[0]})
+                            
+                        self.remove_node_by_id(node.get_children_ids()[0])
+                        self.remove_node_by_id(node.get_id())
+                    else:
+                        self.remove_node_by_id(node.get_id())
+                
+                if(node.get_children_ids()[0].get_label() == "|"):
+                    if(node.get_label() == "1"):
+                        nodes_copies= node.get_children_ids()[0].get_parent_ids()
+                        for node_copie in nodes_copies:
+                            self.add_node("",{node_copie:1},{})
+                        self.add_node("1",{},{node.get_children_ids()[0].get_children()[0]})
+                            
+                        self.remove_node_by_id(node.get_children_ids()[0])
+                        self.remove_node_by_id(node.get_id())
+                    else:
+                        self.remove_node_by_id(node.get_id())
+                
+                if(node.get_children_ids()[0].get_label() == "^"):
+                    if(node.get_label() == "0"):
+                        self.remove_node_by_id(node.get_id())
+                    else:
+                        id_node=self.new_id()
+                        self.add_node("~",{},{node.get_children()[0].get_children()[0]:1})
+                        self.add_node("^",node.get_children()[0].parents,{id_node:1})
+                        self.remove_node_by_id(node.get_children_ids()[0])
+                        self.remove_node_by_id(node.get_id())
+            
+            if ((node.get_label() == "^" or node.get_label() == "|") and (len(node.get_parent_ids()) == 0)):
+                self.add_node("0",{},node.children)
+                self.remove_node_by_id(node.get_id())
+
+            if(node.get_label() == "&" and (len(node.get_parent_ids()) == 0)):
+                self.add_node("1",{},node.children)
+                self.remove_node_by_id(node.get_id())
+
+            
 
