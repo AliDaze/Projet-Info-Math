@@ -15,16 +15,20 @@ class open_digraph_registres:
         registre2=registre2[::-1]
         G=cls.origin()
         node_c=G.add_node(c)
+        G.add_input_id(node_c)
         for i in range(len(registre1)):
             node_c=G.adder_bis(registre1[i],registre2[i],node_c,i)
-        G.add_node("c'",{node_c:1},{})
+        node_cout=G.add_node("c'",{node_c:1},{})
+        G.add_output_id(node_cout)
         return G
 
     def adder_bis(self,a,b,c,i):
         node_copie_c=self.add_node("",{c:1},{})
         node_a=self.add_node(a)
+        self.add_input_id(node_a)
         copie_a=self.add_node("",{node_a:1},{})
         node_b=self.add_node(b)
+        self.add_input_id(node_b)
         copie_b=self.add_node("",{node_b:1},{})
         node_and=self.add_node("&",{copie_b:1,copie_a:1},{})
         node_xor1=self.add_node("^",{copie_b:1,copie_a:1},{})
@@ -33,6 +37,7 @@ class open_digraph_registres:
         node_or=self.add_node("|",{node_and:1,node_and2:1},{})
         node_xor2=self.add_node("^",{node_copie_xor1:1,node_copie_c:1})
         node_r=self.add_node(f"r{i}",{node_xor2:1},{})
+        self.add_output_id(node_r)
 
         return node_or
     
@@ -189,4 +194,10 @@ class open_digraph_registres:
         changement=True
         while(changement):
             changement=self.table1_regles()
+
+
+    def regle_sup_asso_xor(self,node):
+        if(node.get_label()=="^" and self.get_node_by_id(node.get_children_ids()[0]).get_label()=="^"):
+            node_parents= {key: 0 for d in (node.parents, self.get_node_by_id(node.get_children_ids()[0].parents)) for key, value in d.items()}
+            node_xor=self.add_node("^",{})
            

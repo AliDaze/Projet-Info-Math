@@ -688,8 +688,9 @@ class bool_circ(open_digraph,open_digraph_registres):
 			else : 
 				s2+=char
 		res=bool_circ(g.inputs,g.outputs,g.get_nodes())
-		res.fusionne_nodes_graph()
-		res.insert_copies()
+		
+		#res.fusionne_nodes_graph()
+		#res.insert_copies()
 
 
 
@@ -723,15 +724,15 @@ class bool_circ(open_digraph,open_digraph_registres):
 						resnodes[j].set_label("") # changement de label pour ne pas refusionner un noeud qui a été supprimé (affectation None ne fonctionne pas)
 
 	
-	def parse_parentheses(self, *args):
+	def parse_parentheses(self,*args):
 		
 		G = bool_circ.origin()
 		for argk in args:
 			
 			G.iparralel(G.parse_parentheses_bis(argk))
 		
-		G.fusionne_nodes_graph()
-		G.insert_copies()
+		#G.fusionne_nodes_graph()
+		#G.insert_copies()
 
 		return G
 
@@ -792,12 +793,95 @@ class bool_circ(open_digraph,open_digraph_registres):
 
 
 		return bool_circ(graph.get_input_ids(),graph.get_output_ids(),graph.get_nodes())
+	#@classmethod
+	#def hamming_enc(cls):
+	#	return cls.parse_parentheses("(x0)^(x1)^(x3)","(x0)^(x2)^(x3)","(x0)","(x1)^(x2)^(x3)","(x1)","(x2)","(x3)")
+	@classmethod
+	def hamming_enc(cls):
+		G=cls.origin()
+		node_x0=G.add_node("x0")
+		node_x0_copie=G.add_node("",{node_x0:1},{})
+		node_x1=G.add_node("x1")
+		node_x1_copie=G.add_node("",{node_x1:1},{})
+		node_x2=G.add_node("x2")
+		node_x2_copie=G.add_node("",{node_x2:1},{})
+		node_x3=G.add_node("x3")
+		node_x3_copie=G.add_node("",{node_x3:1},{})
+		G.add_input_id(node_x0)
+		G.add_input_id(node_x1)
+		G.add_input_id(node_x2)
+		G.add_input_id(node_x3)
+		node_xor_013=G.add_node("^",{node_x3_copie:1,node_x1_copie:1,node_x0_copie:1},{})
+		node_xor_023=G.add_node("^",{node_x3_copie:1,node_x2_copie:1,node_x0_copie:1},{})
+		node_xor_123=G.add_node("^",{node_x3_copie:1,node_x1_copie:1,node_x2_copie:1},{})
+		node_copie_xor_013=G.add_node("",{node_xor_013:1},{})
+		node_copie_xor_023=G.add_node("",{node_xor_023:1},{})
+		node_copie_xor_123=G.add_node("",{node_xor_123:1},{})
+		node_copie_output_x0=G.add_node("",{node_x0_copie:1},{})
+		node_copie_output_x1=G.add_node("",{node_x1_copie:1},{})
+		node_copie_output_x2=G.add_node("",{node_x2_copie:1},{})
+		node_copie_output_x3=G.add_node("",{node_x3_copie:1},{})
+		G.add_output_id(node_copie_output_x3)
+		G.add_output_id(node_copie_output_x2)
+		G.add_output_id(node_copie_output_x1)
+		G.add_output_id(node_copie_output_x0)
+		G.add_output_id(node_copie_xor_013)
+		G.add_output_id(node_copie_xor_023)
+		G.add_output_id(node_copie_xor_123)
+
+		return G
+		
+	@classmethod
+	def hamming_dec(cls):
+		G=cls.origin()
+		node_x0=G.add_node("x0")
+		node_x1=G.add_node("x1")
+		node_x2=G.add_node("x2")
+		node_x2_copie=G.add_node("",{node_x2:1},{})
+		node_x3=G.add_node("x3")
+		node_x4=G.add_node("x4")
+		node_x4_copie=G.add_node("",{node_x4:1},{})
+		node_x5=G.add_node("x5")
+		node_x5_copie=G.add_node("",{node_x5:1},{})
+		node_x6=G.add_node("x6")
+		node_x6_copie=G.add_node("",{node_x6:1},{})
+		G.add_input_id(node_x0)
+		G.add_input_id(node_x1)
+		G.add_input_id(node_x2)
+		G.add_input_id(node_x3)
+		G.add_input_id(node_x4)
+		G.add_input_id(node_x5)
+		G.add_input_id(node_x6)
+		node_xor0246=G.add_node("^",{node_x0:1,node_x2_copie:1,node_x4_copie:1,node_x6_copie:1},{})
+		node_xor0246_copie=G.add_node("",{node_xor0246:1},{})
+		node_xor1256=G.add_node("^",{node_x1:1,node_x2_copie:1,node_x5_copie:1,node_x6_copie:1},{})
+		node_xor1256_copie=G.add_node("",{node_xor1256:1},{})
+		node_xor3456=G.add_node("^",{node_x3:1,node_x4_copie:1,node_x5_copie:1,node_x6_copie:1},{})
+		node_xor3456_copie=G.add_node("",{node_xor3456:1},{})
+		node_not_xor3456=G.add_node("~",{node_xor3456_copie:1},{})
+		node_and_xor_not3=G.add_node("&",{node_not_xor3456:1,node_xor1256_copie:1,node_xor0246_copie:1},{})
+		node_xor_and3_xor=G.add_node("^",{node_and_xor_not3:1,node_x2_copie:1})
+		node_xor_and3_xor_r=G.add_node("r0",{node_xor_and3_xor:1},{})
+		G.add_output_id(node_xor_and3_xor_r)
+		node_not_1256=G.add_node("~",{node_xor1256_copie:1},{})
+		node_and_xor_not2=G.add_node("&",{node_xor0246_copie:1,node_not_1256:1,node_xor3456_copie:1},{})
+		node_xor_and2_xor=G.add_node("^",{node_and_xor_not2:1,node_x4_copie:1},{})
+		node_xor_and2_xor_r=G.add_node("r1",{node_xor_and2_xor:1},{})
+		G.add_output_id(node_xor_and2_xor_r)
+		node_not_0246=G.add_node("~",{node_xor0246_copie:1},{})
+		node_and_xor_not1=G.add_node("&",{node_xor1256_copie:1,node_not_0246:1,node_xor3456_copie:1},{})
+		node_xor_and1_xor=G.add_node("^",{node_and_xor_not1:1,node_x5_copie:1},{})
+		node_xor_and1_xor_r=G.add_node("r2",{node_xor_and1_xor:1},{})
+		G.add_output_id(node_xor_and1_xor_r)
+		node_and_xor_f=G.add_node("&",{node_xor1256_copie:1,node_xor0246_copie:1,node_xor3456_copie:1},{})
+		node_xor_xor_f=G.add_node("^",{node_and_xor_f:1,node_x6_copie:1})
+		node_xor_xor_f_r=G.add_node("r3",{node_xor_xor_f:1},{})
+		G.add_output_id(node_xor_xor_f_r)
+
+		return G
 
 
 
-
-
-	
 
 
 def remove_repetition(l):
