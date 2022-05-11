@@ -10,94 +10,38 @@ import numpy as np
 class open_digraph_registres:
 
     @classmethod
-    def adder(cls,registre1,registre2,n):
-        '''
-        rend le graph de l additionneur de deux registre de taille n bits  avec les label "a"+i et "b"+i avec i le poid du bit
-        pour evaluer le graph il suffit de renommer par les valeur qu'on veut evaluer
-        '''
+    def adder(cls,registre1,registre2,c="0"):
+        registre1=registre1[::-1]
+        registre2=registre2[::-1]
+        G=cls.origin()
+        node_c=G.add_node(c)
+        for i in range(len(registre1)):
+            node_c=G.adder_bis(registre1[i],registre2[i],node_c,i)
+        G.add_node("c'",{node_c:1},{})
+        return G
 
-        #creer le graph du cas de base (n==0)
-        #registre1=registre1[::-1]
-        #registre2=registre2[::-1]
-        G = cls.origin()
-        node1 = G.add_node("")
-        node2 = G.add_node("")
-        node3 = G.add_node("")
-        G.add_node_input(node1, label="a0")
-        G.add_node_input(node2, label="b0")
-        G.add_node_input(node3, label="c")
-        xor1 = G.add_node("^")
-        xor2 = G.add_node("^")
-        divise = G.add_node("")
-        and1 = G.add_node("&")
-        and2 = G.add_node("&")
-        or1 = G.add_node("|")
-        G.add_node_output(xor2, label="r0")
-        G.add_node_output(or1, label="c'")
+    def adder_bis(self,a,b,c,i):
+        node_copie_c=self.add_node("",{c:1},{})
+        node_a=self.add_node(a)
+        copie_a=self.add_node("",{node_a:1},{})
+        node_b=self.add_node(b)
+        copie_b=self.add_node("",{node_b:1},{})
+        node_and=self.add_node("&",{copie_b:1,copie_a:1},{})
+        node_xor1=self.add_node("^",{copie_b:1,copie_a:1},{})
+        node_copie_xor1=self.add_node("",{node_xor1:1},{})
+        node_and2=self.add_node("&",{node_copie_xor1:1,node_copie_c:1},{})
+        node_or=self.add_node("|",{node_and:1,node_and2:1},{})
+        node_xor2=self.add_node("^",{node_copie_xor1:1,node_copie_c:1})
+        node_r=self.add_node(f"r{i}",{node_xor2:1},{})
 
-        G.add_edge(xor1,node1 )
-        G.add_edge(and1,node1)
-        G.add_edge(xor1,node2)
-        G.add_edge(and1,node2)
-        G.add_edge(xor2,node3)
-        G.add_edge(and2,node3)
-        G.add_edge(divise,xor1)
-        G.add_edge(and2,divise)
-        G.add_edge(xor2,divise)
-        G.add_edge(or1,and1)
-        G.add_edge(or1,and2)
-
-        for i in range(0, n):
-            #relier et assembler les grapgs
-            add = G.copy()
-            indice_bit_a = len(add.get_input_ids()) // 2
-            indice_bit_b = indice_bit_a
-            for node in add.get_input_ids():
-                n = G.get_node_by_id(node)
-                if n.get_label()[0] == "a":
-                    n.set_label(f"a{indice_bit_a}") #n.set_label(f"a{indice_bit_a}")
-                    indice_bit_a += 1
-                if n.get_label()[0] == "b":
-                    n.set_label(f"b{indice_bit_b}") #n.set_label(f"b{indice_bit_b}")
-                    indice_bit_b += 1
-            retenue_sortant = G.get_output_ids()[-1]
-            retenue_entrant = add.get_input_ids()[-1]
-            retenue_entrant += G.max_id() + 1
-            G.iparralel(add)
-            node_retenue_entrant=G.get_node_by_id(retenue_entrant)
-            node_retenue_sortant=G.get_node_by_id(retenue_sortant)
-            G.add_edge(node_retenue_entrant.get_children_ids()[0], node_retenue_sortant.get_parent_ids()[0])
-            G.remove_node_by_id(retenue_entrant)
-            G.remove_node_by_id(retenue_sortant)
-        inputs = G.get_input_ids()[:-1]
-        new_inputs=inputs[0::2] + inputs[1::2] + [G.get_input_ids()[-1]]
-        G.set_input_ids(new_inputs)
-        for i, o in enumerate(G.get_output_ids()[0:-2]):
-            #renommer les output avec "r"+i avec i le poid du bit
-            n = G.get_node_by_id(o)
-            n.set_label(f"r{i+1}")
-        
-
-        for node in G.get_nodes():
-            node_label= node.get_label()
-            if(node.get_id() in G.get_input_ids()):
-                if (node_label[0] == "a"):
-                    
-                    print(node_label)
-                    node.set_label(registre1[int(node_label[1:])])
-                if node_label[0] == "b":
-                    print(node_label)
-                    node.set_label(registre2[int(node_label[1:])])
-
-        return G    
-                
-
+        return node_or
+    
 
             
     @classmethod
-    def half_adder(cls,registre1,registre2,n):
-        G = cls.adder(registre1,registre2,n)
-        G.get_node_by_id(G.get_input_ids()[-1]).set_label("0")
+    def half_adder(cls,registre1,registre2):
+        G = cls.adder(registre1,registre2,"0")
+        #G.get_node_by_id(G.get_input_ids()[-1]).set_label("0")
         return G
     @classmethod
     def entier_adder(cls,n,taille=8):
