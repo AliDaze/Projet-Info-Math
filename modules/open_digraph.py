@@ -509,6 +509,9 @@ class open_digraph(open_digraph_dijkstra,open_digraph_affiche,open_digraph_compo
 		return list_g
 
 	def fusionne_noeuds(self,id1,id2):
+		'''
+		fusionne deux noeuds
+		'''
 		if(not(id1 in self.get_node_ids()) or not(id2 in self.get_node_ids())):
 			raise Exception("id pas dans le graph")
 		node2=self.get_node_by_id(id2)
@@ -642,7 +645,7 @@ class bool_circ(open_digraph,open_digraph_registres):
 		self.outputs = outputs
 		self.nodes = {node.id:node for node in nodes} 
 		self.identify={}
-		if not(self.is_well_formed_circ_2()):
+		if not(self.is_well_formed_circ()):
 			raise Exception("n'est pas un circuit boolean")
 
 	def get_identify(self):
@@ -667,23 +670,7 @@ class bool_circ(open_digraph,open_digraph_registres):
 				return False
 		return not(self.is_cyclic())  
 
-	def is_well_formed_circ_2(self):
-		if not(self.is_well_formed):
-			raise Exception("pas graph")
-		for node in self.nodes.values():
-			if (node.label== "1" or node.label== "0")and not(node.get_id() in self.get_input_ids()):
-				raise Exception("1/0 pas input")
-			if node.label=="" and not(node.indegree()==1) : 
-				for i in node.get_parent_ids():
-					print(self.get_node_by_id(i).get_label())
-				raise Exception("copie pas 1 entree")
-			if (node.label=="&" or node.label=="|" or node.label=="^") and not(node.outdegree()==1):
-				raise Exception(" et ou xor pas une sortie")
-			if (node.label=="~") and not(node.indegree()==1) and not(node.outdegree()==1):
-				raise Exception("non pas une entree ou une sortie")
-			if(self.is_cyclic()):
-				print("cyclic toussa")
-		return not(self.is_cyclic())
+	
 
 	def parse_parentheses_bis(self,s):
 		g = open_digraph([],[1],[node(0,"",{},{1:1}),node(1,"",{0:1},{})])
@@ -714,6 +701,9 @@ class bool_circ(open_digraph,open_digraph_registres):
 
 		return res
 	def insert_copies(self):
+		'''
+		insert les copies necessaires a parse parentheses
+		'''
 		resnodes=self.get_nodes()
 		
 		for i in range(len(resnodes)):
@@ -728,6 +718,9 @@ class bool_circ(open_digraph,open_digraph_registres):
 
 
 	def fusionne_nodes_graph(self):
+		'''
+		fusionnes les noeufs du graphs similaires
+		'''
 		resnodes=self.get_nodes()
 		for i in range(len(resnodes)):
 			# si le noeud n'est pas un operateur
@@ -743,7 +736,9 @@ class bool_circ(open_digraph,open_digraph_registres):
 
 	
 	def parse_parentheses(self,*args):
-		
+		'''
+		genere un graph a partir de strings
+		'''
 		G = bool_circ.origin()
 		for argk in args:
 			
@@ -756,6 +751,9 @@ class bool_circ(open_digraph,open_digraph_registres):
 
 	@classmethod
 	def random_bool_circ(cls,n,bound,inputs,outputs):
+		'''
+		rend un boul circ avec n noeud au minimum, bound max d'arretes , un nombre 'inputs' d'inputs et 'outputs' d'outputs
+		'''
 		M = random_triangular_int_matrix(n,bound)
 		graph = graph_from_adjacency_matrix(M,n)
 
@@ -811,9 +809,8 @@ class bool_circ(open_digraph,open_digraph_registres):
 
 
 		return bool_circ(graph.get_input_ids(),graph.get_output_ids(),graph.get_nodes())
-	#@classmethod
-	#def hamming_enc(cls):
-	#	return cls.parse_parentheses("(x0)^(x1)^(x3)","(x0)^(x2)^(x3)","(x0)","(x1)^(x2)^(x3)","(x1)","(x2)","(x3)")
+	
+
 	@classmethod
 	def hamming_enc(cls):
 		G=cls.origin()
@@ -958,6 +955,11 @@ def circ_ligne(l):
 	return s
 
 def tab_vrt_vers_graph(s):
+	'''
+
+	transforme un string de tab de verité en string de variables utilisable
+
+	'''
 	tab=tab_vrt(s)
 	ss=""
 	for i in range(len(tab)) :
@@ -967,5 +969,5 @@ def tab_vrt_vers_graph(s):
 			else :
 				ss+=circ_ligne(tab[i])
 	ss='('+ss+')'
-	print(ss)
+	
 	return ss

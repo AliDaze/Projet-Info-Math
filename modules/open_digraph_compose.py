@@ -65,7 +65,7 @@ class open_digraph_compose:
 
 	def icompose(self,g):
 		'''
-		
+		compose deux graphes en connectant les inputs de l'un aux outputs de l'autre
 		'''
 		if(len(self.get_input_ids()) != len(g.get_output_ids())):
 			raise Exception("nombre d'entrées différent")

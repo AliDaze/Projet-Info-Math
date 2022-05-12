@@ -11,6 +11,9 @@ class open_digraph_registres:
 
     @classmethod
     def adder(cls,registre1,registre2,c="0"):
+        '''
+        cree un adder de deux registres avec un bit retenue donnée soit '0' soit '1'
+        '''
         registre1=registre1[::-1]
         registre2=registre2[::-1]
         G=cls.origin()
@@ -45,11 +48,16 @@ class open_digraph_registres:
             
     @classmethod
     def half_adder(cls,registre1,registre2):
+        '''
+        cree un half adder des deux registres
+        '''
         G = cls.adder(registre1,registre2,"0")
-        #G.get_node_by_id(G.get_input_ids()[-1]).set_label("0")
         return G
     @classmethod
     def entier_adder(cls,n,taille=8):
+        '''
+        crée un des noeufs a partir d'un chiffre en mode registre
+        '''
         graph=cls.origin()
         bin_n=bin(n)[2:]
         if(taille<(len(bin_n))):
@@ -192,6 +200,9 @@ class open_digraph_registres:
             
 
     def evaluate(self):
+        '''
+        evalue le circuit
+        '''
         changement=True
         while(changement):
             changement=self.table1_regles()
@@ -289,6 +300,9 @@ class open_digraph_registres:
             self.remove_node_by_id(node.get_id())
 
     def regles_supp(self):
+        '''
+        applique les regles supplementaires une fois
+        '''
         nodes=self.get_nodes()
         for node in nodes:
             if(node.get_children_ids()!=[] and node.get_parent_ids()!=[]):
@@ -319,6 +333,9 @@ class open_digraph_registres:
         return False
 
     def regles_apply(self):
+        '''
+        applique les regles supplementaires et les regles du tab1 autant de fois que necessaire
+        '''
         changement=True
         while(changement):
             changement=self.regles_supp()
