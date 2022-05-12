@@ -197,7 +197,87 @@ class open_digraph_registres:
 
 
     def regle_sup_asso_xor(self,node):
-        if(node.get_label()=="^" and self.get_node_by_id(node.get_children_ids()[0]).get_label()=="^"):
-            node_parents= {key: 0 for d in (node.parents, self.get_node_by_id(node.get_children_ids()[0].parents)) for key, value in d.items()}
-            node_xor=self.add_node("^",{})
-           
+        if(node.get_label()=="^" and node.outdegree()==1 and self.get_node_by_id(node.get_children_ids()[0]).get_label()=="^"):
+            node_parents={}
+            for i,v in node.parents.items():
+                if not(i in node_parents):
+                    node_parents[i]=v
+                else : 
+                    node_parents[i]+=v
+
+            for i,v in self.get_node_by_id(node.get_children_ids()[0]).parents.items():
+                if not(i in node_parents):
+                    node_parents[i]=0
+                else:
+                    node_parents[i]+=v
+            node_xor=self.add_node("^",node_parents,self.get_node_by_id(node.get_children_ids()[0]).children.copy())
+            self.remove_node_by_id(node.get_children_ids()[0])
+            self.remove_node_by_id(node.get_id())
+
+    def regle_sup_asso_copie(self,node):
+        if(node.get_label()=="" and node.indegree()==1 and self.get_node_by_id(node.get_parent_ids()[0]).get_label()==""):
+            node_children={}
+            for i,v in node.children.items():
+                if not(i in node_children):
+                    node_children=v
+                else:
+                    node_children+=v
+            
+            for i,v in self.get_node_by_id(node.get_parent_ids()[0]).children.items():
+                if not(i in node_children):
+                    node_children=v
+                else : 
+                    node_children+=v
+           node_copie=self.add_node("",self.get_node_by_id(node.get_parent_ids()[0]).parents,node_children)
+           self.remove_node_by_id(node.get_parent_ids()[0])
+           self.remove_node_by_id(node.get_id())
+
+    def regle_sup_invo_xor(self,node):
+        if(node.get_label()=="^"):
+            parents=node.parents.copy()
+            for node_copie,value in parents.items():
+                if self.get_node_by_id(node_copie).get_label()=="" and value >1:
+                    if value%2 == 0:
+                        node.parents.pop(node_copie)
+                    else : 
+                        node.parents[node_copie]=1
+
+                    break
+    def regle_sup_effacement(self,node):
+        label = node.get_label()
+        if label == "0" or label == "1" or label == "&" or label == "|" or label == "^" or label == "~":
+            if len(node.get_children_ids()) == 1 :
+                if len(node.get_children_ids()[0].get_children_ids()) == 0 :
+                    for parent in node.get_parent_ids():
+                        self.add_node("",{parent:1},{})
+                    self.remove_node_by_id(node.get_children_ids()[0])
+                    self.remove_node_by_id(node.get_id())
+
+    def regle_sup_non_xor(self,node):
+        if node.get_label()=="~" and node.get_children_ids()[0].get_label() =="^" :
+            parents=self.get_node_by_id(node.get_children_ids()[0]).children.copy()
+            if(node.get_parent_ids()[0] in parents.keys()):
+                parents[node.get_parent_ids()[0]]+=node.parents[node.get_parent_ids()[0]]
+            else : 
+                parents[node.get_parent_ids()[0]]=node.parents[node.get_parent_ids()[0]]
+            node_xor=self.add_node("^",parents,{})
+            self.add_node("~",{node_xor:1},self.get_node_by_id(node.get_children_ids()[0]).children.copy())
+            self.remove_node_by_id(node.get_children_ids()[0])
+            self.remove_node_by_id(node.get_id())
+
+    def regle_sup_non_copie(self,node):
+        if node.get_label() == "~" and node.get_children_ids()[0].get_label() == "":
+            node_child=self.get_node_by_id(node.get_children_ids()[0])
+            node_copie=self.add_node("",{node.get_parent_ids()[0]:1},{})
+            for child in node_child.get_children_ids():
+                self.add_node("~",{node_copie:1},{child:1})
+
+            self.remove_node_by_id(node_child.get_id())
+            self.remove_node_by_id(node.get_id())
+
+    def regle_sup_inv_not(self,node):
+        if(node.get_label()=="~" and self.get_node_by_id(node.get_children_ids()[0]).get_label()=="~"):
+            self.remove_node_by_id(node.get_children_ids()[0])
+            self.remove_node_by_id(node.get_id())
+
+    
