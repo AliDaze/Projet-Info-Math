@@ -90,7 +90,6 @@ class open_digraph_affiche:
 		self.save_as_dot_file( nom+".dot", verbose)
 		os.system('dot -Tpdf graph'+num+'.dot -o graph'+num+'.pdf')
 		webbrowser.open_new(nom+".pdf")
-		time.sleep(1)
 		os.remove(nom+".dot")
 		time.sleep(1)
 		os.remove(nom+".pdf")

@@ -642,7 +642,7 @@ class bool_circ(open_digraph,open_digraph_registres):
 		self.outputs = outputs
 		self.nodes = {node.id:node for node in nodes} 
 		self.identify={}
-		if not(self.is_well_formed_circ()):
+		if not(self.is_well_formed_circ_2()):
 			raise Exception("n'est pas un circuit boolean")
 
 	def get_identify(self):
@@ -667,6 +667,24 @@ class bool_circ(open_digraph,open_digraph_registres):
 				return False
 		return not(self.is_cyclic())  
 
+	def is_well_formed_circ_2(self):
+		if not(self.is_well_formed):
+			raise Exception("pas graph")
+		for node in self.nodes.values():
+			if (node.label== "1" or node.label== "0")and not(node.get_id() in self.get_input_ids()):
+				raise Exception("1/0 pas input")
+			if node.label=="" and not(node.indegree()==1) : 
+				for i in node.get_parent_ids():
+					print(self.get_node_by_id(i).get_label())
+				raise Exception("copie pas 1 entree")
+			if (node.label=="&" or node.label=="|" or node.label=="^") and not(node.outdegree()==1):
+				raise Exception(" et ou xor pas une sortie")
+			if (node.label=="~") and not(node.indegree()==1) and not(node.outdegree()==1):
+				raise Exception("non pas une entree ou une sortie")
+			if(self.is_cyclic()):
+				print("cyclic toussa")
+		return not(self.is_cyclic())
+
 	def parse_parentheses_bis(self,s):
 		g = open_digraph([],[1],[node(0,"",{},{1:1}),node(1,"",{0:1},{})])
 		current_node=0
@@ -689,8 +707,8 @@ class bool_circ(open_digraph,open_digraph_registres):
 				s2+=char
 		res=bool_circ(g.inputs,g.outputs,g.get_nodes())
 		
-		#res.fusionne_nodes_graph()
-		#res.insert_copies()
+		res.fusionne_nodes_graph()
+		res.insert_copies()
 
 
 
@@ -731,8 +749,8 @@ class bool_circ(open_digraph,open_digraph_registres):
 			
 			G.iparralel(G.parse_parentheses_bis(argk))
 		
-		#G.fusionne_nodes_graph()
-		#G.insert_copies()
+		G.fusionne_nodes_graph()
+		G.insert_copies()
 
 		return G
 
@@ -830,20 +848,20 @@ class bool_circ(open_digraph,open_digraph_registres):
 		G.add_output_id(node_copie_xor_123)
 
 		return G
-		
+
 	@classmethod
 	def hamming_dec(cls):
 		G=cls.origin()
-		node_x0=G.add_node("x0")
-		node_x1=G.add_node("x1")
-		node_x2=G.add_node("x2")
+		node_x0=G.add_node("y0")
+		node_x1=G.add_node("y1")
+		node_x2=G.add_node("y2")
 		node_x2_copie=G.add_node("",{node_x2:1},{})
-		node_x3=G.add_node("x3")
-		node_x4=G.add_node("x4")
+		node_x3=G.add_node("y3")
+		node_x4=G.add_node("y4")
 		node_x4_copie=G.add_node("",{node_x4:1},{})
-		node_x5=G.add_node("x5")
+		node_x5=G.add_node("y5")
 		node_x5_copie=G.add_node("",{node_x5:1},{})
-		node_x6=G.add_node("x6")
+		node_x6=G.add_node("y6")
 		node_x6_copie=G.add_node("",{node_x6:1},{})
 		G.add_input_id(node_x0)
 		G.add_input_id(node_x1)
@@ -860,7 +878,7 @@ class bool_circ(open_digraph,open_digraph_registres):
 		node_xor3456_copie=G.add_node("",{node_xor3456:1},{})
 		node_not_xor3456=G.add_node("~",{node_xor3456_copie:1},{})
 		node_and_xor_not3=G.add_node("&",{node_not_xor3456:1,node_xor1256_copie:1,node_xor0246_copie:1},{})
-		node_xor_and3_xor=G.add_node("^",{node_and_xor_not3:1,node_x2_copie:1})
+		node_xor_and3_xor=G.add_node("^",{node_and_xor_not3:1,node_x2_copie:1},{})
 		node_xor_and3_xor_r=G.add_node("r0",{node_xor_and3_xor:1},{})
 		G.add_output_id(node_xor_and3_xor_r)
 		node_not_1256=G.add_node("~",{node_xor1256_copie:1},{})

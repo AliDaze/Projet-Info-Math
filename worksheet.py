@@ -3,79 +3,64 @@ from unicodedata import decimal
 from modules.open_digraph import *
 import math 
 import random
+import copy
+
+registre="1111" #le chiffre a tester( a mettre en inputs de l'encodeur)
+
+#Premier essaie en changeant aucun bit (ca marche bien)
+
+pop=bool_circ.hamming_enc()
+graph=bool_circ.hamming_dec().compose(pop)
+for node in graph.get_nodes():
+	if node.get_label()!="" and node.get_label()[0]=="x":
+		node.set_label(registre[int(node.get_label()[1:])])
+	if node.get_label()!="" and node.get_label()[0] == "y":
+		node.set_label("")
+graph.display(True)
+K=bool_circ(graph.get_input_ids(),graph.get_output_ids(),graph.get_nodes())
+K.regles_apply()
+K.display(True)
 
 
+# deuxieme essaie en changeant un bit au hasard entre 0 et 6 inclus (ca marche , cela corrige effectivement l'erreur)
 
-M=(random_triangular_int_matrix(7,3))
-'''for i in range(4):
-print(M[i])
-print("\n")'''
+pop=bool_circ.hamming_enc()
+outputs=pop.get_output_ids()
+node_not=pop.add_node("~",pop.get_node_by_id(outputs[4]).parents.copy(),{})
+node_output=pop.add_node("",{node_not:1},{})
+pop.add_output_id(node_output)
+pop.remove_node_by_id(outputs[4])
+graph=bool_circ.hamming_dec().compose(pop)
+for node in graph.get_nodes():
+	if node.get_label()!="" and node.get_label()[0]=="x":
+		node.set_label(registre[int(node.get_label()[1:])])
+	if node.get_label()!="" and node.get_label()[0] == "y":
+		node.set_label("")
+graph.display(True)
+K=bool_circ(graph.get_input_ids(),graph.get_output_ids(),graph.get_nodes())
+K.regles_apply()
+K.display(True)
 
-'''(M=[ [0, 1, 1, 0, 0],
-[0, 0, 0, 1, 2],
-[0, 0, 0, 2, 0],
-[1, 0, 0, 0, 1],
-[0, 0, 0, 0, 0] ]'''
-M2=(random_triangular_int_matrix(4,2)) 
-M3=(random_triangular_int_matrix(7,4)) 
-G=graph_from_adjacency_matrix(M,7)
-G3=graph_from_adjacency_matrix(M3,7)
-G2=graph_from_adjacency_matrix(M2,4)
-#print(G)
-#G.shift_indices(10)
-#print("\n \n")
-#print(G)
-#print(G.djikstra(10))
-#node4=G.get_node_by_id(10)
-#print(G.distance_ancetres(15,14))
-#print(G.trie_topologique())
-#print(f"profondeur noeud = {(G.profondeur_noeud(G.get_node_by_id(11)))}" )
-#print("profondeur g = ",(G.profondeur_graph()))
-#path,dist=G.longest_path(10,15)
-#print(path)
-#print(dist)
+#Dernier essaie en changeant 2 bit (ca ne doit pas marcher et ca ne marche effectivement pas)
 
-#g.display(True)
-#print(g.inputs)
-#print(g.outputs)
-#g=k.parse_parentheses("((x0)&((x1)&(x2)))|((x1)&(~(x2)))", "((x0)&(~(x1)))|(x2)")
-#print(g.get_input_ids())
-#g.display(True)
-#print(g.get_identify())
-#print(tab_vrt('1110001000111111'))
-#print(math.log2(16))
-#print(circ_ligne(['0','0','1','0','1']))
-#klm=k.parse_parentheses(tab_vrt_vers_graph('1110001000111111'))
-#klm.display(True)
-#G=bool_circ.half_adder("0001","1111")
-#G.display(True)
-#G.evaluate()
-G=bool_circ.hamming_dec()
-G.display(True)
-#print(G)
-
-#print(G.is_well_formed())
-#G.display(True)
-#G2.display(True)
-
-#G.iparralel_list(G2,G3)
-#k,g_dict=G.connected_components()
-#print(k)
-#print(g_dict)
-#list_g=G.connnexe_compose()
-#G.display(True)
-#for i in g_list:
-#	i.display()
-#G0=random_graph(7,2,form="DAG")
-#for k in list_g:
-#	k.display(True)
-
-#G.remove_node_by_id(10)
-#G.display(True)
-#G.save_as_dot_file("/home/tp-home002/gkemich/Documents/Projet-Info-Math/mm.dot",verbose=False)
-#G2=open_digraph.from_dot_file("/home/tp-home002/gkemich/Documents/Projet-Info-Math/mm.dot")
-#G2.display(True)
-#print(g_new.is_well_formed())
-#print(g_new)
-#print(bool_circ.half_adder(11101110,10100111,3,True))
-#bool_circ.entier_adder(11).display(True)
+pop=bool_circ.hamming_enc()
+outputs=pop.get_output_ids()
+node_not=pop.add_node("~",pop.get_node_by_id(outputs[5]).parents.copy(),{})
+node_output=pop.add_node("",{node_not:1},{})
+pop.add_output_id(node_output)
+pop.remove_node_by_id(outputs[5])
+outputs=pop.get_output_ids()
+node_not=pop.add_node("~",pop.get_node_by_id(outputs[4]).parents.copy(),{})
+node_output=pop.add_node("",{node_not:1},{})
+pop.add_output_id(node_output)
+pop.remove_node_by_id(outputs[4])
+graph=bool_circ.hamming_dec().compose(pop)
+for node in graph.get_nodes():
+	if node.get_label()!="" and node.get_label()[0]=="x":
+		node.set_label(registre[int(node.get_label()[1:])])
+	if node.get_label()!="" and node.get_label()[0] == "y":
+		node.set_label("")
+graph.display(True)
+K=bool_circ(graph.get_input_ids(),graph.get_output_ids(),graph.get_nodes())
+K.regles_apply()
+K.display(True)
