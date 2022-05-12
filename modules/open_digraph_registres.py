@@ -277,7 +277,9 @@ class open_digraph_registres:
 
     def regle_sup_inv_not(self,node):
         if(node.get_label()=="~" and self.get_node_by_id(node.get_children_ids()[0]).get_label()=="~"):
+            self.add_edge(self.get_node_by_id(node.get_children_ids()[0]).get_children_ids()[0],node.get_parent_ids()[0])
             self.remove_node_by_id(node.get_children_ids()[0])
             self.remove_node_by_id(node.get_id())
 
-    
+    def regles_supp(self):
+        pass
